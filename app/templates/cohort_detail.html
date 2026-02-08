@@ -1,0 +1,1061 @@
+{% extends "app_base.html" %}
+
+{% block title %}Cohort Analysis - PharmaTwin{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+    /* ===== Base Styles ===== */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    /* ===== Dashboard Cards ===== */
+    .dashboard-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
+    }
+
+    /* ===== Stat Cards ===== */
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card.teal::before {
+        background: #0d9488;
+    }
+
+    .stat-card.amber::before {
+        background: #f59e0b;
+    }
+
+    .stat-card.indigo::before {
+        background: #6366f1;
+    }
+
+    .stat-card.rose::before {
+        background: #f43f5e;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: -0.025em;
+    }
+
+    .stat-sub {
+        font-size: 0.875rem;
+        font-weight: 400;
+        color: #94a3b8;
+    }
+
+    /* ===== Tabs ===== */
+    .tab-container {
+        display: flex;
+        gap: 0.25rem;
+        background: #f1f5f9;
+        padding: 0.25rem;
+        border-radius: 0.75rem;
+    }
+
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #64748b;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+
+    .tab-btn:hover {
+        color: #1e293b;
+    }
+
+    .tab-btn.active {
+        background: white;
+        color: #0d9488;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* ===== Grade Colors (AE Matrix) ===== */
+    .grade-0 {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .grade-1 {
+        background: #ccfbf1;
+        color: #0d9488;
+    }
+
+    .grade-2 {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .grade-3 {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    /* ===== Response Colors ===== */
+    .response-pr {
+        background: rgba(13, 148, 136, 0.1);
+        color: #0d9488;
+    }
+
+    .response-sd {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+    }
+
+    .response-pd {
+        background: rgba(244, 63, 94, 0.1);
+        color: #e11d48;
+    }
+
+    /* ===== PGx Badges ===== */
+    .pgx-em {
+        background: #ccfbf1;
+        color: #0d9488;
+    }
+
+    .pgx-im {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .pgx-pm {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    /* ===== Biomarker Badges ===== */
+    .biomarker-pos {
+        background: #ccfbf1;
+        color: #0d9488;
+    }
+
+    .biomarker-neg {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes countUp {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .delay-100 {
+        animation-delay: 0.1s;
+    }
+
+    .delay-200 {
+        animation-delay: 0.2s;
+    }
+
+    .delay-300 {
+        animation-delay: 0.3s;
+    }
+
+    /* ===== Table Styles ===== */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #64748b;
+        background: #f8fafc;
+    }
+
+    .data-table td {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+
+    /* ===== Chart Card ===== */
+    .chart-card {
+        min-height: 400px;
+    }
+
+    .chart-container {
+        height: 350px;
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block header_left %}
+<div class="flex items-center gap-4">
+    <a href="/projects/{{ project.id }}/cohorts/new" class="text-gray-400 hover:text-gray-600 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+    </a>
+    <div class="flex items-baseline gap-2">
+        <span class="text-xl font-bold text-gray-800">{{ project.title }}</span>
+        <span class="text-gray-300">/</span>
+        <span class="text-lg font-medium text-gray-600">{{ cohort.name }}</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl w-full">
+        {% set phase = cohort.demographics.get('phase', '1')|string %}
+
+        <!-- Page Header -->
+        <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase 
+                {% if phase == '1' %} bg-teal-100 text-teal-700
+                {% elif phase == '2' %} bg-amber-100 text-amber-700
+                {% else %} bg-indigo-100 text-indigo-700 {% endif %}">
+                    Phase {{ phase }}
+                </span>
+                <h1 class="text-2xl font-bold text-gray-900">{{ cohort.name }}</h1>
+            </div>
+            <div class="text-sm text-gray-500">
+                {% if phase == '1' %}200mg 코호트 | N=6
+                {% elif phase == '2' %}300mg 코호트 (RP2D) | N=12
+                {% else %}시험군 코호트 | N=15{% endif %}
+            </div>
+        </div>
+
+        <!-- ========== PHASE 1 ========== -->
+        {% if phase == '1' %}
+        <div class="space-y-8 animate-fade-in">
+            <!-- Summary Stats -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="dashboard-card stat-card teal">
+                    <p class="stat-label">코호트 용량</p>
+                    <p class="stat-value">200<span class="text-lg ml-1">mg</span></p>
+                    <p class="stat-sub">1일 1회 경구 투여</p>
+                </div>
+                <div class="dashboard-card stat-card amber delay-100">
+                    <p class="stat-label">DLT 발생</p>
+                    <p class="stat-value">1/6</p>
+                    <p class="stat-sub">16.7% 발생률</p>
+                </div>
+                <div class="dashboard-card stat-card teal delay-200">
+                    <p class="stat-label">평균 Cmax</p>
+                    <p class="stat-value">195.6<span class="text-lg ml-1">ng/mL</span></p>
+                    <p class="stat-sub">코호트 평균</p>
+                </div>
+                <div class="dashboard-card stat-card indigo delay-300">
+                    <p class="stat-label">평균 t1/2</p>
+                    <p class="stat-value">12.4<span class="text-lg ml-1">hr</span></p>
+                    <p class="stat-sub">코호트 평균 반감기</p>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('p1', 'pk')">약동학(PK)</button>
+                <button class="tab-btn" onclick="switchTab('p1', 'ae')">안전성(AE)</button>
+                <button class="tab-btn" onclick="switchTab('p1', 'pgx')">약물유전체</button>
+            </div>
+
+            <!-- PK Tab -->
+            <div id="p1-pk" class="tab-content active space-y-6">
+                <div class="dashboard-card chart-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 PK Profile (Spaghetti Plot)</h3>
+                    <p class="text-sm text-gray-500 mb-4">200mg 코호트 6명 환자의 개별 혈중 농도-시간 곡선</p>
+                    <div class="chart-container"><canvas id="p1SpaghettiChart"></canvas></div>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">개별 환자 PK 파라미터</h3>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>환자 ID</th>
+                                    <th>Cmax (ng/mL)</th>
+                                    <th>Tmax (hr)</th>
+                                    <th>AUC (ng·hr/mL)</th>
+                                    <th>t1/2 (hr)</th>
+                                    <th>CL/F (L/hr)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p1PkTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AE Tab -->
+            <div id="p1-ae" class="tab-content space-y-6">
+                <div class="dashboard-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 이상반응 프로파일</h3>
+                    <p class="text-sm text-gray-500 mb-4">400mg 코호트 각 환자의 이상반응 발생 현황 (Grade 0-3)</p>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>환자 ID</th>
+                                    <th class="text-center">피로</th>
+                                    <th class="text-center">오심</th>
+                                    <th class="text-center">두통</th>
+                                    <th class="text-center">설사</th>
+                                    <th class="text-center">발진</th>
+                                    <th class="text-center">DLT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p1AeTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-center gap-6 mt-6 pt-4 border-t">
+                        <div class="flex items-center gap-2"><span
+                                class="w-6 h-6 rounded grade-0 flex items-center justify-center text-xs">0</span><span
+                                class="text-sm text-gray-500">Grade 0</span></div>
+                        <div class="flex items-center gap-2"><span
+                                class="w-6 h-6 rounded grade-1 flex items-center justify-center text-xs">1</span><span
+                                class="text-sm text-gray-500">Grade 1</span></div>
+                        <div class="flex items-center gap-2"><span
+                                class="w-6 h-6 rounded grade-2 flex items-center justify-center text-xs">2</span><span
+                                class="text-sm text-gray-500">Grade 2</span></div>
+                        <div class="flex items-center gap-2"><span
+                                class="w-6 h-6 rounded grade-3 flex items-center justify-center text-xs">3</span><span
+                                class="text-sm text-gray-500">Grade 3 (DLT)</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PGx Tab -->
+            <div id="p1-pgx" class="tab-content space-y-6">
+                <div class="dashboard-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 약물유전체 프로파일</h3>
+                    <p class="text-sm text-gray-500 mb-4">400mg 코호트 각 환자의 CYP 유전자형 및 PK 영향</p>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>환자 ID</th>
+                                    <th>CYP2D6 표현형</th>
+                                    <th>CYP3A4 유전자형</th>
+                                    <th>AUC (ng·hr/mL)</th>
+                                    <th>Cmax (ng/mL)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p1PgxTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-center gap-6 mt-6 pt-4 border-t">
+                        <div class="flex items-center gap-2"><span
+                                class="px-2.5 py-1 rounded-full text-xs font-semibold pgx-em">EM</span><span
+                                class="text-sm text-gray-500">Extensive Metabolizer</span></div>
+                        <div class="flex items-center gap-2"><span
+                                class="px-2.5 py-1 rounded-full text-xs font-semibold pgx-im">IM</span><span
+                                class="text-sm text-gray-500">Intermediate Metabolizer</span></div>
+                        <div class="flex items-center gap-2"><span
+                                class="px-2.5 py-1 rounded-full text-xs font-semibold pgx-pm">PM</span><span
+                                class="text-sm text-gray-500">Poor Metabolizer</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ========== PHASE 2 ========== -->
+        {% if phase == '2' %}
+        <div class="space-y-8 animate-fade-in">
+            <!-- Summary Stats -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="dashboard-card stat-card teal">
+                    <p class="stat-label">ORR</p>
+                    <p class="stat-value">41.7%</p>
+                    <p class="stat-sub">5/12 환자 반응</p>
+                </div>
+                <div class="dashboard-card stat-card amber delay-100">
+                    <p class="stat-label">DCR</p>
+                    <p class="stat-value">83.3%</p>
+                    <p class="stat-sub">질병 통제율</p>
+                </div>
+                <div class="dashboard-card stat-card indigo delay-200">
+                    <p class="stat-label">평균 치료 기간</p>
+                    <p class="stat-value">10.8<span class="text-lg ml-1">mo</span></p>
+                    <p class="stat-sub">코호트 평균</p>
+                </div>
+                <div class="dashboard-card stat-card teal delay-300">
+                    <p class="stat-label">진행 중</p>
+                    <p class="stat-value">5/12</p>
+                    <p class="stat-sub">치료 지속 환자</p>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('p2', 'response')">종양 반응</button>
+                <button class="tab-btn" onclick="switchTab('p2', 'duration')">치료 기간</button>
+                <button class="tab-btn" onclick="switchTab('p2', 'biomarker')">바이오마커</button>
+            </div>
+
+            <!-- Response Tab -->
+            <div id="p2-response" class="tab-content active space-y-6">
+                <div class="dashboard-card chart-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 종양 반응 (Waterfall Plot)</h3>
+                    <p class="text-sm text-gray-500 mb-4">300mg 코호트 12명 환자의 최대 종양 크기 변화율 (%)</p>
+                    <div class="chart-container"><canvas id="p2WaterfallChart"></canvas></div>
+                    <div class="flex justify-center gap-6 mt-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded" style="background:#0d9488"></div><span
+                                class="text-sm text-gray-500">PR (부분 반응)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded" style="background:#f59e0b"></div><span
+                                class="text-sm text-gray-500">SD (안정)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded" style="background:#f43f5e"></div><span
+                                class="text-sm text-gray-500">PD (진행)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duration Tab -->
+            <div id="p2-duration" class="tab-content space-y-6">
+                <div class="dashboard-card chart-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 치료 기간 (Swimmer Plot)</h3>
+                    <p class="text-sm text-gray-500 mb-4">300mg 코호트 각 환자의 치료 지속 기간 (개월)</p>
+                    <div class="chart-container"><canvas id="p2SwimmerChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Biomarker Tab -->
+            <div id="p2-biomarker" class="tab-content space-y-6">
+                <div class="dashboard-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">개별 환자 바이오마커 프로파일</h3>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>환자 ID</th>
+                                    <th class="text-center">KRAS</th>
+                                    <th class="text-center">EGFR</th>
+                                    <th class="text-center">PD-L1 (%)</th>
+                                    <th class="text-center">반응</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p2BiomarkerTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ========== PHASE 3 ========== -->
+        {% if phase == '3' %}
+        <div class="space-y-8 animate-fade-in">
+            <!-- Summary Stats -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="dashboard-card stat-card indigo">
+                    <p class="stat-label">중앙 OS</p>
+                    <p class="stat-value">24.8<span class="text-lg ml-1">mo</span></p>
+                    <p class="stat-sub">전체 생존기간</p>
+                </div>
+                <div class="dashboard-card stat-card teal delay-100">
+                    <p class="stat-label">중앙 PFS</p>
+                    <p class="stat-value">12.5<span class="text-lg ml-1">mo</span></p>
+                    <p class="stat-sub">무진행 생존기간</p>
+                </div>
+                <div class="dashboard-card stat-card amber delay-200">
+                    <p class="stat-label">생존 환자</p>
+                    <p class="stat-value">10/15</p>
+                    <p class="stat-sub">66.7% 생존율</p>
+                </div>
+                <div class="dashboard-card stat-card indigo delay-300">
+                    <p class="stat-label">Biomarker+</p>
+                    <p class="stat-value">7/15</p>
+                    <p class="stat-sub">바이오마커 양성</p>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('p3', 'survival')">생존 분석</button>
+                <button class="tab-btn" onclick="switchTab('p3', 'timeline')">환자 타임라인</button>
+                <button class="tab-btn" onclick="switchTab('p3', 'biomarker')">바이오마커</button>
+            </div>
+
+            <!-- Survival Tab -->
+            <div id="p3-survival" class="tab-content active space-y-6">
+                <div class="dashboard-card chart-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">코호트 생존 곡선 (Kaplan-Meier)</h3>
+                    <p class="text-sm text-gray-500 mb-4">시험군 코호트 15명 환자의 전체 생존율 추이</p>
+                    <div class="chart-container"><canvas id="p3KMChart"></canvas></div>
+                    <div class="mt-6 pt-4 border-t">
+                        <p class="text-sm font-medium text-gray-500 mb-2">Number at Risk</p>
+                        <div class="flex gap-6 overflow-x-auto" id="p3AtRisk"></div>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">개별 환자 생존 데이터</h3>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>환자 ID</th>
+                                    <th>OS (개월)</th>
+                                    <th>PFS (개월)</th>
+                                    <th>상태</th>
+                                    <th>Biomarker</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p3SurvivalTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Tab -->
+            <div id="p3-timeline" class="tab-content space-y-6">
+                <div class="dashboard-card chart-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 치료 타임라인</h3>
+                    <p class="text-sm text-gray-500 mb-4">시험군 코호트 각 환자의 주요 이벤트 타임라인 (개월)</p>
+                    <div class="chart-container"><canvas id="p3TimelineChart"></canvas></div>
+                    <div class="flex justify-center gap-6 mt-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded" style="background:#0d9488"></div><span
+                                class="text-sm text-gray-500">진행 없음</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded" style="background:#f59e0b"></div><span
+                                class="text-sm text-gray-500">질병 진행</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded" style="background:#f43f5e"></div><span
+                                class="text-sm text-gray-500">사망</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biomarker Tab -->
+            <div id="p3-biomarker" class="tab-content space-y-6">
+                <div class="dashboard-card">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">바이오마커 양성/음성 환자 비교</h3>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>환자 ID</th>
+                                    <th class="text-center">Biomarker</th>
+                                    <th class="text-center">PD-L1 (%)</th>
+                                    <th class="text-center">OS (개월)</th>
+                                    <th class="text-center">PFS (개월)</th>
+                                    <th class="text-center">반응</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p3BiomarkerTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t">
+                        <div class="bg-teal-50 rounded-lg p-4">
+                            <p class="text-sm font-medium text-teal-700">Biomarker+ (n=7)</p>
+                            <p class="text-lg font-bold font-mono text-gray-800 mt-1">중앙 OS: 26.3mo</p>
+                            <p class="text-sm text-gray-500">중앙 PFS: 14.6mo</p>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <p class="text-sm font-medium text-gray-600">Biomarker- (n=8)</p>
+                            <p class="text-lg font-bold font-mono text-gray-800 mt-1">중앙 OS: 18.5mo</p>
+                            <p class="text-sm text-gray-500">중앙 PFS: 8.3mo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ===== Dummy Data =====
+    const phase1Data = {
+        pk: [
+            { patient: "P01", cmax: 720, tmax: 2, auc: 8450, t12: 17.2, cl: 47.3 },
+            { patient: "P02", cmax: 680, tmax: 2, auc: 7820, t12: 18.5, cl: 51.2 },
+            { patient: "P03", cmax: 750, tmax: 2, auc: 8120, t12: 16.8, cl: 49.3 },
+            { patient: "P04", cmax: 810, tmax: 2, auc: 9280, t12: 19.8, cl: 43.1 },
+            { patient: "P05", cmax: 640, tmax: 2, auc: 7150, t12: 15.5, cl: 55.9 },
+            { patient: "P06", cmax: 695, tmax: 2, auc: 7680, t12: 17.8, cl: 52.1 }
+        ],
+        pkTimeSeries: [
+            { time: 0, P01: 0, P02: 0, P03: 0, P04: 0, P05: 0, P06: 0 },
+            { time: 1, P01: 580, P02: 620, P03: 545, P04: 690, P05: 510, P06: 605 },
+            { time: 2, P01: 720, P02: 680, P03: 750, P04: 810, P05: 640, P06: 695 },
+            { time: 4, P01: 520, P02: 480, P03: 560, P04: 610, P05: 450, P06: 505 },
+            { time: 8, P01: 280, P02: 310, P03: 265, P04: 340, P05: 240, P06: 295 },
+            { time: 12, P01: 145, P02: 165, P03: 130, P04: 185, P05: 120, P06: 155 },
+            { time: 24, P01: 45, P02: 55, P03: 38, P04: 68, P05: 32, P06: 48 },
+            { time: 48, P01: 12, P02: 18, P03: 10, P04: 22, P05: 8, P06: 15 }
+        ],
+        ae: [
+            { patient: "P01", fatigue: 1, nausea: 0, headache: 1, diarrhea: 0, rash: 0, dlt: false },
+            { patient: "P02", fatigue: 2, nausea: 1, headache: 0, diarrhea: 1, rash: 0, dlt: false },
+            { patient: "P03", fatigue: 1, nausea: 1, headache: 1, diarrhea: 0, rash: 1, dlt: false },
+            { patient: "P04", fatigue: 2, nausea: 2, headache: 1, diarrhea: 2, rash: 0, dlt: false },
+            { patient: "P05", fatigue: 1, nausea: 0, headache: 0, diarrhea: 0, rash: 0, dlt: false },
+            { patient: "P06", fatigue: 3, nausea: 2, headache: 2, diarrhea: 1, rash: 1, dlt: true }
+        ],
+        pgx: [
+            { patient: "P01", cyp2d6: "EM", cyp3a4: "*1/*1", auc: 8450, cmax: 720 },
+            { patient: "P02", cyp2d6: "IM", cyp3a4: "*1/*1", auc: 7820, cmax: 680 },
+            { patient: "P03", cyp2d6: "EM", cyp3a4: "*1/*22", auc: 8120, cmax: 750 },
+            { patient: "P04", cyp2d6: "PM", cyp3a4: "*1/*1", auc: 9280, cmax: 810 },
+            { patient: "P05", cyp2d6: "EM", cyp3a4: "*1/*1", auc: 7150, cmax: 640 },
+            { patient: "P06", cyp2d6: "IM", cyp3a4: "*1/*22", auc: 7680, cmax: 695 }
+        ]
+    };
+
+    const phase2Data = {
+        response: [
+            { patient: "P01", change: -72, bestResponse: "PR", biomarker: "KRAS WT" },
+            { patient: "P02", change: -58, bestResponse: "PR", biomarker: "KRAS WT" },
+            { patient: "P03", change: -45, bestResponse: "PR", biomarker: "EGFR+" },
+            { patient: "P04", change: -38, bestResponse: "PR", biomarker: "KRAS WT" },
+            { patient: "P05", change: -32, bestResponse: "PR", biomarker: "EGFR+" },
+            { patient: "P06", change: -25, bestResponse: "SD", biomarker: "KRAS Mut" },
+            { patient: "P07", change: -18, bestResponse: "SD", biomarker: "KRAS WT" },
+            { patient: "P08", change: -8, bestResponse: "SD", biomarker: "KRAS Mut" },
+            { patient: "P09", change: 5, bestResponse: "SD", biomarker: "EGFR-" },
+            { patient: "P10", change: 12, bestResponse: "SD", biomarker: "KRAS Mut" },
+            { patient: "P11", change: 25, bestResponse: "PD", biomarker: "KRAS Mut" },
+            { patient: "P12", change: 38, bestResponse: "PD", biomarker: "EGFR-" }
+        ],
+        duration: [
+            { patient: "P01", duration: 18, response: "PR", ongoing: true },
+            { patient: "P02", duration: 16, response: "PR", ongoing: true },
+            { patient: "P03", duration: 15, response: "PR", ongoing: false },
+            { patient: "P04", duration: 14, response: "PR", ongoing: true },
+            { patient: "P05", duration: 13, response: "PR", ongoing: true },
+            { patient: "P06", duration: 12, response: "SD", ongoing: false },
+            { patient: "P07", duration: 11, response: "SD", ongoing: false },
+            { patient: "P08", duration: 9, response: "SD", ongoing: false },
+            { patient: "P09", duration: 8, response: "SD", ongoing: false },
+            { patient: "P10", duration: 6, response: "SD", ongoing: false },
+            { patient: "P11", duration: 4, response: "PD", ongoing: false },
+            { patient: "P12", duration: 3, response: "PD", ongoing: false }
+        ],
+        biomarker: [
+            { patient: "P01", kras: "WT", egfr: "+", pdl1: 85, response: "PR" },
+            { patient: "P02", kras: "WT", egfr: "+", pdl1: 72, response: "PR" },
+            { patient: "P03", kras: "WT", egfr: "+", pdl1: 68, response: "PR" },
+            { patient: "P04", kras: "WT", egfr: "-", pdl1: 45, response: "PR" },
+            { patient: "P05", kras: "WT", egfr: "+", pdl1: 62, response: "PR" },
+            { patient: "P06", kras: "Mut", egfr: "-", pdl1: 35, response: "SD" },
+            { patient: "P07", kras: "WT", egfr: "-", pdl1: 28, response: "SD" },
+            { patient: "P08", kras: "Mut", egfr: "-", pdl1: 22, response: "SD" },
+            { patient: "P09", kras: "WT", egfr: "-", pdl1: 15, response: "SD" },
+            { patient: "P10", kras: "Mut", egfr: "-", pdl1: 18, response: "SD" },
+            { patient: "P11", kras: "Mut", egfr: "-", pdl1: 8, response: "PD" },
+            { patient: "P12", kras: "Mut", egfr: "-", pdl1: 5, response: "PD" }
+        ]
+    };
+
+    const phase3Data = {
+        survival: [
+            { patient: "P01", os: 32, pfs: 18, status: "alive", biomarker: "+" },
+            { patient: "P02", os: 28, pfs: 16, status: "alive", biomarker: "+" },
+            { patient: "P03", os: 26, pfs: 14, status: "alive", biomarker: "+" },
+            { patient: "P04", os: 25, pfs: 15, status: "alive", biomarker: "-" },
+            { patient: "P05", os: 24, pfs: 12, status: "alive", biomarker: "+" },
+            { patient: "P06", os: 22, pfs: 11, status: "deceased", biomarker: "-" },
+            { patient: "P07", os: 21, pfs: 10, status: "alive", biomarker: "+" },
+            { patient: "P08", os: 20, pfs: 9, status: "deceased", biomarker: "-" },
+            { patient: "P09", os: 18, pfs: 8, status: "alive", biomarker: "-" },
+            { patient: "P10", os: 16, pfs: 7, status: "deceased", biomarker: "-" },
+            { patient: "P11", os: 14, pfs: 6, status: "deceased", biomarker: "-" },
+            { patient: "P12", os: 12, pfs: 5, status: "deceased", biomarker: "-" },
+            { patient: "P13", os: 28, pfs: 15, status: "alive", biomarker: "+" },
+            { patient: "P14", os: 24, pfs: 13, status: "alive", biomarker: "+" },
+            { patient: "P15", os: 22, pfs: 11, status: "alive", biomarker: "-" }
+        ],
+        km: [
+            { month: 0, survival: 100, atRisk: 15 },
+            { month: 6, survival: 93, atRisk: 14 },
+            { month: 12, survival: 80, atRisk: 12 },
+            { month: 18, survival: 67, atRisk: 10 },
+            { month: 24, survival: 60, atRisk: 9 },
+            { month: 30, survival: 60, atRisk: 9 }
+        ],
+        timeline: [
+            { patient: "P01", duration: 32, death: false, progression: false },
+            { patient: "P02", duration: 28, death: false, progression: false },
+            { patient: "P03", duration: 26, death: false, progression: false },
+            { patient: "P04", duration: 25, death: false, progression: true },
+            { patient: "P05", duration: 24, death: false, progression: false },
+            { patient: "P06", duration: 22, death: true, progression: true },
+            { patient: "P07", duration: 21, death: false, progression: false },
+            { patient: "P08", duration: 20, death: true, progression: true },
+            { patient: "P09", duration: 18, death: false, progression: true },
+            { patient: "P10", duration: 16, death: true, progression: true },
+            { patient: "P11", duration: 14, death: true, progression: true },
+            { patient: "P12", duration: 12, death: true, progression: true }
+        ],
+        biomarker: [
+            { patient: "P01", biomarker: "+", pdl1: 82, os: 32, pfs: 18, response: "PR" },
+            { patient: "P02", biomarker: "+", pdl1: 75, os: 28, pfs: 16, response: "PR" },
+            { patient: "P03", biomarker: "+", pdl1: 68, os: 26, pfs: 14, response: "PR" },
+            { patient: "P05", biomarker: "+", pdl1: 72, os: 24, pfs: 12, response: "PR" },
+            { patient: "P07", biomarker: "+", pdl1: 65, os: 21, pfs: 10, response: "SD" },
+            { patient: "P13", biomarker: "+", pdl1: 78, os: 28, pfs: 15, response: "PR" },
+            { patient: "P14", biomarker: "+", pdl1: 70, os: 24, pfs: 13, response: "PR" },
+            { patient: "P04", biomarker: "-", pdl1: 25, os: 25, pfs: 15, response: "SD" },
+            { patient: "P06", biomarker: "-", pdl1: 18, os: 22, pfs: 11, response: "SD" },
+            { patient: "P08", biomarker: "-", pdl1: 22, os: 20, pfs: 9, response: "PD" },
+            { patient: "P09", biomarker: "-", pdl1: 15, os: 18, pfs: 8, response: "SD" },
+            { patient: "P10", biomarker: "-", pdl1: 12, os: 16, pfs: 7, response: "PD" },
+            { patient: "P11", biomarker: "-", pdl1: 8, os: 14, pfs: 6, response: "PD" },
+            { patient: "P12", biomarker: "-", pdl1: 5, os: 12, pfs: 5, response: "PD" },
+            { patient: "P15", biomarker: "-", pdl1: 20, os: 22, pfs: 11, response: "SD" }
+        ]
+    };
+
+    const colors = { teal: '#0d9488', amber: '#f59e0b', indigo: '#6366f1', rose: '#f43f5e', green: '#22c55e' };
+    const patientColors = ['#0d9488', '#6366f1', '#f59e0b', '#f43f5e', '#22c55e', '#8b5cf6'];
+
+    // ===== Tab Switching =====
+    function switchTab(phase, tabName) {
+        document.querySelectorAll(`[id^="${phase}-"]`).forEach(el => el.classList.remove('active'));
+        document.querySelectorAll(`.tab-btn`).forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`${phase}-${tabName}`).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // ===== Render Functions =====
+    function renderPhase1() {
+        // PK Table
+        const pkTbody = document.getElementById('p1PkTable');
+        if (pkTbody) {
+            pkTbody.innerHTML = phase1Data.pk.map((p, i) => `
+            <tr>
+                <td class="font-medium"><span class="inline-block w-3 h-3 rounded-full mr-2" style="background:${patientColors[i]}"></span>${p.patient}</td>
+                <td class="font-mono">${p.cmax}</td>
+                <td class="font-mono">${p.tmax}</td>
+                <td class="font-mono">${p.auc.toLocaleString()}</td>
+                <td class="font-mono">${p.t12}</td>
+                <td class="font-mono">${p.cl}</td>
+            </tr>
+        `).join('');
+        }
+
+        // AE Table
+        const aeTbody = document.getElementById('p1AeTable');
+        if (aeTbody) {
+            const gradeClass = g => `grade-${g}`;
+            aeTbody.innerHTML = phase1Data.ae.map((p, i) => `
+            <tr>
+                <td class="font-medium"><span class="inline-block w-3 h-3 rounded-full mr-2" style="background:${patientColors[i]}"></span>${p.patient}</td>
+                <td class="text-center"><span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-mono font-medium ${gradeClass(p.fatigue)}">${p.fatigue}</span></td>
+                <td class="text-center"><span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-mono font-medium ${gradeClass(p.nausea)}">${p.nausea}</span></td>
+                <td class="text-center"><span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-mono font-medium ${gradeClass(p.headache)}">${p.headache}</span></td>
+                <td class="text-center"><span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-mono font-medium ${gradeClass(p.diarrhea)}">${p.diarrhea}</span></td>
+                <td class="text-center"><span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-mono font-medium ${gradeClass(p.rash)}">${p.rash}</span></td>
+                <td class="text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.dlt ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'}">${p.dlt ? 'Yes' : 'No'}</span></td>
+            </tr>
+        `).join('');
+        }
+
+        // PGx Table
+        const pgxTbody = document.getElementById('p1PgxTable');
+        if (pgxTbody) {
+            const pgxClass = t => t === 'EM' ? 'pgx-em' : t === 'IM' ? 'pgx-im' : 'pgx-pm';
+            pgxTbody.innerHTML = phase1Data.pgx.map((p, i) => `
+            <tr>
+                <td class="font-medium"><span class="inline-block w-3 h-3 rounded-full mr-2" style="background:${patientColors[i]}"></span>${p.patient}</td>
+                <td><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${pgxClass(p.cyp2d6)}">${p.cyp2d6}</span></td>
+                <td class="font-mono">${p.cyp3a4}</td>
+                <td class="font-mono">${p.auc.toLocaleString()}</td>
+                <td class="font-mono">${p.cmax}</td>
+            </tr>
+        `).join('');
+        }
+
+        // Spaghetti Chart
+        const spaghettiCanvas = document.getElementById('p1SpaghettiChart');
+        if (spaghettiCanvas) {
+            const patients = ['P01', 'P02', 'P03', 'P04', 'P05', 'P06'];
+            new Chart(spaghettiCanvas, {
+                type: 'line',
+                data: {
+                    labels: phase1Data.pkTimeSeries.map(d => d.time),
+                    datasets: patients.map((p, i) => ({
+                        label: `환자 ${p}`,
+                        data: phase1Data.pkTimeSeries.map(d => d[p]),
+                        borderColor: patientColors[i],
+                        backgroundColor: patientColors[i] + '20',
+                        tension: 0.4,
+                        pointRadius: 3,
+                        borderWidth: 2
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: '시간 (hr)' } },
+                        y: { title: { display: true, text: '혈중 농도 (ng/mL)' } }
+                    }
+                }
+            });
+        }
+    }
+
+    function renderPhase2() {
+        // Biomarker Table
+        const bioTbody = document.getElementById('p2BiomarkerTable');
+        if (bioTbody) {
+            const respClass = r => r === 'PR' ? 'response-pr' : r === 'SD' ? 'response-sd' : 'response-pd';
+            bioTbody.innerHTML = phase2Data.biomarker.map(p => `
+            <tr>
+                <td class="font-medium">${p.patient}</td>
+                <td class="text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.kras === 'WT' ? 'biomarker-pos' : 'bg-red-100 text-red-700'}">${p.kras}</span></td>
+                <td class="text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.egfr === '+' ? 'biomarker-pos' : 'biomarker-neg'}">${p.egfr}</span></td>
+                <td class="text-center"><div class="flex items-center justify-center gap-2"><div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${p.pdl1}%;background:${p.pdl1 >= 50 ? colors.teal : p.pdl1 >= 25 ? colors.amber : colors.rose}"></div></div><span class="text-sm font-mono">${p.pdl1}%</span></div></td>
+                <td class="text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${respClass(p.response)}">${p.response}</span></td>
+            </tr>
+        `).join('');
+        }
+
+        // Waterfall Chart
+        const waterfallCanvas = document.getElementById('p2WaterfallChart');
+        if (waterfallCanvas) {
+            new Chart(waterfallCanvas, {
+                type: 'bar',
+                data: {
+                    labels: phase2Data.response.map(d => d.patient),
+                    datasets: [{
+                        data: phase2Data.response.map(d => d.change),
+                        backgroundColor: phase2Data.response.map(d => d.bestResponse === 'PR' ? colors.teal : d.bestResponse === 'SD' ? colors.amber : colors.rose),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { title: { display: true, text: '종양 크기 변화율 (%)' }, min: -80, max: 50 },
+                        x: { title: { display: true, text: '환자' } }
+                    }
+                }
+            });
+        }
+
+        // Swimmer Chart
+        const swimmerCanvas = document.getElementById('p2SwimmerChart');
+        if (swimmerCanvas) {
+            const sortedData = [...phase2Data.duration].sort((a, b) => b.duration - a.duration);
+            new Chart(swimmerCanvas, {
+                type: 'bar',
+                data: {
+                    labels: sortedData.map(d => d.patient),
+                    datasets: [{
+                        data: sortedData.map(d => d.duration),
+                        backgroundColor: sortedData.map(d => d.response === 'PR' ? colors.teal : d.response === 'SD' ? colors.amber : colors.rose),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: '기간 (개월)' }, max: 20 },
+                        y: { title: { display: false } }
+                    }
+                }
+            });
+        }
+    }
+
+    function renderPhase3() {
+        // Survival Table
+        const survTbody = document.getElementById('p3SurvivalTable');
+        if (survTbody) {
+            survTbody.innerHTML = phase3Data.survival.map(p => `
+            <tr>
+                <td class="font-medium">${p.patient}</td>
+                <td class="font-mono">${p.os}</td>
+                <td class="font-mono">${p.pfs}</td>
+                <td><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.status === 'alive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${p.status === 'alive' ? '생존' : '사망'}</span></td>
+                <td><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.biomarker === '+' ? 'biomarker-pos' : 'biomarker-neg'}">${p.biomarker}</span></td>
+            </tr>
+        `).join('');
+        }
+
+        // At Risk
+        const atRiskDiv = document.getElementById('p3AtRisk');
+        if (atRiskDiv) {
+            atRiskDiv.innerHTML = phase3Data.km.map(d => `<div class="text-center min-w-[60px]"><p class="text-xs text-gray-500">${d.month}mo</p><p class="text-sm font-mono font-medium">${d.atRisk}</p></div>`).join('');
+        }
+
+        // Biomarker Table
+        const bioTbody = document.getElementById('p3BiomarkerTable');
+        if (bioTbody) {
+            const respClass = r => r === 'PR' ? 'response-pr' : r === 'SD' ? 'response-sd' : 'response-pd';
+            bioTbody.innerHTML = phase3Data.biomarker.map(p => `
+            <tr>
+                <td class="font-medium">${p.patient}</td>
+                <td class="text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.biomarker === '+' ? 'biomarker-pos' : 'biomarker-neg'}">${p.biomarker}</span></td>
+                <td class="text-center"><div class="flex items-center justify-center gap-2"><div class="w-12 h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${p.pdl1}%;background:${p.pdl1 >= 50 ? colors.teal : p.pdl1 >= 25 ? colors.amber : colors.rose}"></div></div><span class="text-sm font-mono">${p.pdl1}%</span></div></td>
+                <td class="text-center font-mono">${p.os}</td>
+                <td class="text-center font-mono">${p.pfs}</td>
+                <td class="text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${respClass(p.response)}">${p.response}</span></td>
+            </tr>
+        `).join('');
+        }
+
+        // KM Chart
+        const kmCanvas = document.getElementById('p3KMChart');
+        if (kmCanvas) {
+            new Chart(kmCanvas, {
+                type: 'line',
+                data: {
+                    labels: phase3Data.km.map(d => d.month),
+                    datasets: [{
+                        label: '생존율 (%)',
+                        data: phase3Data.km.map(d => d.survival),
+                        borderColor: colors.indigo,
+                        backgroundColor: colors.indigo + '20',
+                        fill: true,
+                        stepped: 'after',
+                        tension: 0,
+                        borderWidth: 2.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: '시간 (개월)' } },
+                        y: { title: { display: true, text: '생존율 (%)' }, min: 0, max: 100 }
+                    }
+                }
+            });
+        }
+
+        // Timeline Chart
+        const timelineCanvas = document.getElementById('p3TimelineChart');
+        if (timelineCanvas) {
+            const sortedTimeline = [...phase3Data.timeline].sort((a, b) => b.duration - a.duration);
+            new Chart(timelineCanvas, {
+                type: 'bar',
+                data: {
+                    labels: sortedTimeline.map(d => d.patient),
+                    datasets: [{
+                        data: sortedTimeline.map(d => d.duration),
+                        backgroundColor: sortedTimeline.map(d => d.death ? colors.rose : d.progression ? colors.amber : colors.teal),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: '시간 (개월)' }, max: 35 }
+                    }
+                }
+            });
+        }
+    }
+
+    // ===== Initialize =====
+    document.addEventListener('DOMContentLoaded', () => {
+        const phase = '{{ phase }}';
+        if (phase === '1') renderPhase1();
+        if (phase === '2') renderPhase2();
+        if (phase === '3') renderPhase3();
+    });
+</script>
+{% endblock %}

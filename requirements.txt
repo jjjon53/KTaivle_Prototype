@@ -1,0 +1,36 @@
+# Core ML/Chemistry
+rdkit
+mordredcommunity
+scikit-learn
+scipy
+pandas
+numpy
+joblib
+tqdm
+requests
+
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+
+# Template Engine
+jinja2
+
+# Authentication
+python-multipart
+passlib
+bcrypt==3.2.2
+python-jose
+itsdangerous
+
+# AI/LLM Integration
+google-generativeai>=0.8.0
+
+# Document Generation
+python-docx>=0.8.11
+
+# PDF Support (optional)
+# weasyprint  # For HTML to PDF conversion
