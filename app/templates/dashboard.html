@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}Dashboard - PharmaTwin{% endblock %}
+{% block title %}Dashboard - Pyxidis{% endblock %}
 
 {% block extra_css %}
 {{ super() }}
@@ -89,12 +89,12 @@
                 </svg>
                 <span class="text-sm font-semibold text-gray-700 uppercase tracking-wider">PROJECTS</span>
             </div>
-            <a href="#" class="text-sm text-[#0077a2] hover:underline">View All</a>
+            <a href="/dashboard/projects" class="text-sm text-[#0077a2] hover:underline">View All</a>
         </div>
 
         <!-- Project Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {% for project in projects %}
+            {% for project in projects|reverse %}
             <a href="/projects/{{ project.id }}"
                 class="block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition group">
                 <!-- Project Title -->
@@ -152,11 +152,11 @@
                 </svg>
                 <span class="text-sm font-semibold text-gray-700 uppercase tracking-wider">RESULTS</span>
             </div>
-            <a href="#" class="text-sm text-[#0077a2] hover:underline">View All</a>
+            <a href="/dashboard/results" class="text-sm text-[#0077a2] hover:underline">View All</a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {% for result_project in results %}
+            {% for result_project in results|reverse %}
             <!-- Linking to the new Grouped Result Page -->
             <a href="/projects/{{ result_project.id }}/results"
                 class="project-card block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition group">
@@ -212,27 +212,60 @@
                 </svg>
                 <span class="text-sm font-semibold text-gray-700 uppercase tracking-wider">IND REPORT</span>
             </div>
-            <a href="#" class="text-sm text-[#0077a2] hover:underline">View All</a>
+            <a href="/dashboard/ind-reports" class="text-sm text-[#0077a2] hover:underline">View All</a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {% for report in ind_reports %}
-            <a href="/dashboard/reports/{{ report.id }}" class="group block">
-                <div
-                    class="w-full aspect-video bg-gray-900 rounded-lg mb-2 relative overflow-hidden flex items-center justify-center text-white/50 text-xs shadow-sm group-hover:shadow-md transition">
-                    <div
-                        class="absolute inset-x-2 inset-y-2 border border-white/20 rounded flex flex-col items-center justify-center gap-1">
-                        <svg class="w-6 h-6 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                        </svg>
-                        <span>IND REPORT</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {% for report in ind_reports %}
+                <div class="group block relative">
+                    <!-- Dropdown Trigger -->
+                    <div class="absolute top-2 right-2 z-20">
+                        <button class="text-white/70 hover:text-white p-1 rounded-full hover:bg-black/40 transition opacity-0 group-hover:opacity-100"
+                            onclick="toggleProjectMenu(event, 'report-menu-{{ report.id }}')">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="report-menu-{{ report.id }}"
+                            class="hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-30">
+                            <button onclick="deleteReport(event, {{ report.id }})"
+                                class="block w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition">
+                                Delete Report
+                            </button>
+                        </div>
                     </div>
-                    <div
-                        class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white backdrop-blur-sm">
-                        {{ report.status }}
-                    </div>
-                </div>
+
+                    <a href="/dashboard/reports/{{ report.id }}" class="block">
+                        <div
+                            class="w-full aspect-video bg-white border border-gray-100 rounded-lg mb-2 relative overflow-hidden flex items-center justify-center shadow-sm group-hover:shadow-md transition">
+                            {% if report.meta_data and report.meta_data.smiles %}
+                            <img src="/api/molecule/image?smiles={{ report.meta_data.smiles }}&width=300&height=180" 
+                                 alt="Molecule Structure" 
+                                 class="w-full h-full object-contain p-4"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="hidden w-full h-full bg-gray-900 flex-col items-center justify-center text-white/50 text-xs">
+                                <svg class="w-6 h-6 opacity-50 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                                <span>IND REPORT</span>
+                            </div>
+                            {% else %}
+                            <div class="w-full h-full bg-gray-900 flex flex-col items-center justify-center text-white/50 text-xs">
+                                <div class="border border-white/20 rounded p-3 flex flex-col items-center">
+                                    <svg class="w-6 h-6 opacity-50 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                    <span>IND REPORT</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div
+                                class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white backdrop-blur-sm">
+                                {{ report.status }}
+                            </div>
+                        </div>
                 <div class="px-1">
                     <h3 class="text-sm font-medium text-gray-800 group-hover:text-[#0077a2] truncate">{{ report.title }}
                     </h3>
@@ -242,7 +275,8 @@
                     <p class="text-xs text-[#0077a2] mt-0.5">{{ report.project.title }}</p>
                     {% endif %}
                 </div>
-            </a>
+                </a>
+            </div>
             {% else %}
             <div class="col-span-full py-8 text-center border-2 border-dashed border-gray-200 rounded-lg">
                 <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,6 +389,18 @@
             if (menu.id !== menuId) menu.classList.add('hidden');
         });
         document.getElementById(menuId).classList.toggle('hidden');
+    }
+
+    function deleteReport(event, reportId) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!confirm('Are you sure you want to delete this report?')) return;
+        fetch(`/dashboard/reports/${reportId}`, { method: 'DELETE' })
+            .then(res => {
+                if (res.ok) window.location.reload();
+                else alert('Failed to delete report.');
+            })
+            .catch(err => alert('Error deleting report.'));
     }
 
     function deleteProject(event, projectId) {

@@ -1,0 +1,135 @@
+{% extends "app_base.html" %}
+
+{% block title %}Deleted Objects - Pyxidis{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center gap-3 mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Deleted Objects</h1>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-gray-200 mb-6 gap-6">
+        <button id="btn-projects" class="pb-2 border-b-2 border-[#0077a2] font-medium text-[#0077a2] transition"
+            onclick="switchTab('projects')">
+            Projects ({{ deleted_projects|length }})
+        </button>
+        <button id="btn-reports" class="pb-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition"
+            onclick="switchTab('reports')">
+            Reports ({{ deleted_reports|length }})
+        </button>
+    </div>
+
+    <!-- Projects List -->
+    <div id="tab-projects" class="space-y-3">
+        {% for project in deleted_projects %}
+        <div class="flex justify-between items-center p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition">
+            <div class="flex items-center gap-4">
+                <div class="p-2 bg-gray-100 rounded text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-900">{{ project.title }}</h3>
+                    <p class="text-xs text-gray-500">{{ project.predictions|length }} Analysis • Created: {{ project.created_at.strftime('%Y-%m-%d') }}</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="restoreObject('project', {{ project.id }})" 
+                    class="px-3 py-1.5 text-sm font-medium text-[#0077a2] bg-cyan-50 rounded hover:bg-cyan-100 transition">
+                    Restore
+                </button>
+                <button onclick="permanentDeleteObject('project', {{ project.id }})" 
+                    class="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition">
+                    Delete Forever
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50">
+            <p class="text-gray-500">No deleted projects found.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Reports List -->
+    <div id="tab-reports" class="space-y-3 hidden">
+        {% for report in deleted_reports %}
+        <div class="flex justify-between items-center p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition">
+            <div class="flex items-center gap-4">
+                <div class="p-2 bg-gray-100 rounded text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-900">{{ report.title }}</h3>
+                    <p class="text-xs text-gray-500">Project: {{ report.project.title }} • Created: {{ report.created_at.strftime('%Y-%m-%d') }}</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="restoreObject('report', {{ report.id }})" 
+                    class="px-3 py-1.5 text-sm font-medium text-[#0077a2] bg-cyan-50 rounded hover:bg-cyan-100 transition">
+                    Restore
+                </button>
+                <button onclick="permanentDeleteObject('report', {{ report.id }})" 
+                    class="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition">
+                    Delete Forever
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50">
+            <p class="text-gray-500">No deleted reports found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function switchTab(tab) {
+        // Toggle Content
+        document.getElementById('tab-projects').classList.toggle('hidden', tab !== 'projects');
+        document.getElementById('tab-reports').classList.toggle('hidden', tab !== 'reports');
+        
+        // Toggle Buttons
+        const btnProjects = document.getElementById('btn-projects');
+        const btnReports = document.getElementById('btn-reports');
+        
+        if (tab === 'projects') {
+            btnProjects.classList.add('border-[#0077a2]', 'text-[#0077a2]');
+            btnProjects.classList.remove('border-transparent', 'text-gray-500');
+            btnReports.classList.remove('border-[#0077a2]', 'text-[#0077a2]');
+            btnReports.classList.add('border-transparent', 'text-gray-500');
+        } else {
+            btnReports.classList.add('border-[#0077a2]', 'text-[#0077a2]');
+            btnReports.classList.remove('border-transparent', 'text-gray-500');
+            btnProjects.classList.remove('border-[#0077a2]', 'text-[#0077a2]');
+            btnProjects.classList.add('border-transparent', 'text-gray-500');
+        }
+    }
+
+    async function restoreObject(type, id) {
+        if (!confirm(`Are you sure you want to restore this ${type}?`)) return;
+        try {
+            const res = await fetch(`/dashboard/restore/${type}/${id}`, { method: 'POST' });
+            if (res.ok) window.location.reload();
+            else alert('Failed to restore item');
+        } catch (e) {
+            alert('Error restoring item');
+        }
+    }
+
+    async function permanentDeleteObject(type, id) {
+        if (!confirm(`Are you sure you want to PERMANENTLY delete this ${type}? This action cannot be undone.`)) return;
+        try {
+            const res = await fetch(`/dashboard/permanent/${type}/${id}`, { method: 'DELETE' });
+            if (res.ok) window.location.reload();
+            else alert('Failed to delete item');
+        } catch (e) {
+            alert('Error deleting item');
+        }
+    }
+</script>
+{% endblock %}

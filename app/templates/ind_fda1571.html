@@ -25,6 +25,24 @@
             .page-break {
                 page-break-before: always;
             }
+
+            /* Fix: Prevent content cutoff */
+            .page-container {
+                min-height: auto !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            /* Fix: Keep sections together */
+            .section-block {
+                page-break-inside: avoid;
+            }
+
+            /* Fix: Signature section handling */
+            .signature-section {
+                page-break-inside: avoid;
+                margin-top: 20mm;
+            }
         }
 
         .form-box {
@@ -80,7 +98,8 @@
     </div>
 
     <!-- PAGE 1 -->
-    <div class="max-w-[210mm] mx-auto bg-white shadow-lg print:shadow-none min-h-[297mm] relative text-xs">
+    <div
+        class="max-w-[210mm] mx-auto bg-white shadow-lg print:shadow-none min-h-[297mm] relative text-xs page-container">
 
         <!-- Header -->
         <div class="border-2 border-black mb-1">
@@ -294,7 +313,7 @@
             </div>
 
             <!-- Signature Section (Bottom of page usually, or next page) -->
-            <div class="border-t border-black p-2 mt-auto">
+            <div class="border-t border-black p-2 mt-auto signature-section">
                 <div class="text-sm font-bold mb-2">18. Name and Title of Person Responsible for Review</div>
                 <div class="border-b border-black mb-1 p-1">{{ pi_name or 'Dr. Jane Doe' }}{% if pi_credentials %}, {{
                     pi_credentials }}{% else %}, Chief Medical Officer{% endif %}</div>

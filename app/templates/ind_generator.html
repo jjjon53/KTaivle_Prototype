@@ -78,6 +78,55 @@
         cursor: help;
     }
 
+    /* Custom Tooltip */
+    .tooltip-trigger {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 4px;
+    }
+
+    .tooltip-content {
+        visibility: hidden;
+        width: 220px;
+        background-color: #1f2937;
+        color: #f9fafb;
+        text-align: left;
+        border-radius: 6px;
+        padding: 8px 12px;
+        position: absolute;
+        z-index: 50;
+        top: 135%;
+        bottom: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.2s;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.4;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        pointer-events: none;
+        white-space: normal; /* Ensure text wraps */
+    }
+
+    .tooltip-trigger:hover .tooltip-content {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .tooltip-content::after {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        top: auto;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent #1f2937 transparent;
+    }
+
     /* Preview Panel */
     .markdown-preview {
         font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
@@ -154,8 +203,8 @@
             <div class="space-y-4">
 
                 <!-- Section 1: Applicant Information -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="collapsible-header flex items-center justify-between px-5 py-4 border-b border-gray-100"
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div class="collapsible-header rounded-t-xl flex items-center justify-between px-5 py-4 border-b border-gray-100"
                         onclick="toggleSection(this)">
                         <div class="flex items-center gap-3">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,17 +224,35 @@
                     <div class="collapsible-content open">
                         <div class="px-5 py-4 space-y-4">
                             <div>
-                                <label class="form-label">Applicant Name</label>
+                                <label class="form-label">
+                                    Applicant Name
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">IND 신청서에 기재될 의뢰자(Applicant)의 공식 명칭입니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="applicant_name" class="form-input" placeholder=""
                                     value="{{ form_data.applicant_name or '' }}">
                             </div>
                             <div>
-                                <label class="form-label">Applicant Address</label>
+                                <label class="form-label">
+                                    Applicant Address
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">의뢰자의 공식 주소입니다. FDA와의 서신 교환에 사용됩니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="applicant_address" class="form-input" placeholder=""
                                     value="{{ form_data.applicant_address or '' }}">
                             </div>
                             <div>
-                                <label class="form-label">Phone Number</label>
+                                <label class="form-label">
+                                    Phone Number
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">의뢰자 또는 대리인의 연락처입니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="applicant_phone" class="form-input" placeholder=""
                                     value="{{ form_data.applicant_phone or '' }}">
                             </div>
@@ -194,8 +261,8 @@
                 </div>
 
                 <!-- Section 2: Investigator & Institution -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="collapsible-header flex items-center justify-between px-5 py-4 border-b border-gray-100"
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div class="collapsible-header rounded-t-xl flex items-center justify-between px-5 py-4 border-b border-gray-100"
                         onclick="toggleSection(this)">
                         <div class="flex items-center gap-3">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,27 +282,57 @@
                     <div class="collapsible-content open">
                         <div class="px-5 py-4 space-y-4">
                             <div>
-                                <label class="form-label">Principal Investigator Name</label>
+                                <label class="form-label">
+                                    Principal Investigator Name
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">임상시험을 총괄할 연구 책임자(PI)의 성명입니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="pi_name" class="form-input" placeholder=""
                                     value="{{ form_data.pi_name or '' }}">
                             </div>
                             <div>
-                                <label class="form-label">PI Credentials</label>
+                                <label class="form-label">
+                                    PI Credentials
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">연구 책임자의 자격 및 학위 정보 (예: MD, PhD)입니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="pi_credentials" class="form-input" placeholder=""
                                     value="{{ form_data.pi_credentials or '' }}">
                             </div>
                             <div>
-                                <label class="form-label">Research Institution</label>
+                                <label class="form-label">
+                                    Research Institution
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">임상시험이 수행될 연구 기관 또는 병원의 명칭입니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="institution_name" class="form-input" placeholder=""
                                     value="{{ form_data.institution_name or '' }}">
                             </div>
                             <div>
-                                <label class="form-label">Institution Address</label>
+                                <label class="form-label">
+                                    Institution Address
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">연구 기관의 주소입니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="institution_address" class="form-input" placeholder=""
                                     value="{{ form_data.institution_address or '' }}">
                             </div>
                             <div>
-                                <label class="form-label">IRB/Ethics Committee Name</label>
+                                <label class="form-label">
+                                    IRB/Ethics Committee Name
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">임상시험 계획을 심의할 임상시험심사위원회(IRB)의 명칭입니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="irb_name" class="form-input" placeholder=""
                                     value="{{ form_data.irb_name or '' }}">
                             </div>
@@ -244,8 +341,8 @@
                 </div>
 
                 <!-- Section 3: Clinical Trial Parameters -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="collapsible-header collapsed flex items-center justify-between px-5 py-4 border-b border-gray-100"
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div class="collapsible-header rounded-t-xl collapsed flex items-center justify-between px-5 py-4 border-b border-gray-100"
                         onclick="toggleSection(this)">
                         <div class="flex items-center gap-3">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,7 +362,13 @@
                         <div class="px-5 py-4 space-y-4">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="form-label">Clinical Phase</label>
+                                    <label class="form-label">
+                                        Clinical Phase
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">진행하고자 하는 임상시험의 단계입니다 (1상, 2상, 3상).</span>
+                                        </span>
+                                    </label>
                                     <select id="clinical_phase" class="form-input"
                                         onchange="updatePhaseData(this.value)">
                                         <option value="1" {{ 'selected' if form_data and form_data.clinical_phase=='1'
@@ -280,18 +383,36 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="form-label">Expected Patients</label>
+                                    <label class="form-label">
+                                        Expected Patients
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">임상시험에 모집할 예상 피험자 수입니다.</span>
+                                        </span>
+                                    </label>
                                     <input type="number" id="expected_patients" class="form-input" placeholder="30"
                                         value="{{ form_data.expected_patients or '30' }}">
                                 </div>
                             </div>
                             <div>
-                                <label class="form-label">Study Duration</label>
+                                <label class="form-label">
+                                    Study Duration
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">임상시험의 전체 예상 기간입니다 (예: 12주, 6개월).</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="study_duration" class="form-input" placeholder="12 weeks"
                                     value="{{ form_data.study_duration or '12 weeks' }}">
                             </div>
                             <div>
-                                <label class="form-label">Target Population</label>
+                                <label class="form-label">
+                                    Target Population
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">해당 Phase 시뮬레이션에서 적용된 인구 집단 정보(인종, 성별, 연령)가 자동으로 매핑됩니다.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="target_population" class="form-input"
                                     placeholder="Adult patients"
                                     value="{{ form_data.target_population or 'Adult patients' }}">
@@ -301,8 +422,8 @@
                 </div>
 
                 <!-- Section 4: Drug Candidate Info -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="collapsible-header flex items-center justify-between px-5 py-4 border-b border-gray-100"
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div class="collapsible-header rounded-t-xl flex items-center justify-between px-5 py-4 border-b border-gray-100"
                         onclick="toggleSection(this)">
                         <div class="flex items-center gap-3">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,6 +445,10 @@
                                 <label class="form-label">
                                     Drug Name
                                     <span class="text-red-500">*</span>
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">임상시험용 의약품의 명칭 또는 코드명입니다.</span>
+                                    </span>
                                 </label>
                                 <input type="text" id="drug_name" class="form-input" placeholder="Draft Drug A"
                                     value="{{ form_data.drug_name or '' }}" required>
@@ -331,11 +456,10 @@
                             <div>
                                 <label class="form-label">
                                     Drug Class
-                                    <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        title="Small Molecule, Biologics, etc.">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">약물의 작용 기전이나 구조적 특성에 따른 분류입니다 (예: Small Molecule, Biologics).</span>
+                                    </span>
                                 </label>
                                 <select id="drug_class" class="form-input">
                                     <option value="Small Molecule" {{ 'selected' if form_data and
@@ -352,11 +476,10 @@
                                 <label class="form-label">
                                     SMILES / Sequence
                                     <span class="text-red-500">*</span>
-                                    <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        title="Chemical structure in SMILES format">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">약물의 분자 구조를 나타내는 문자열 표기법입니다 (소분자: SMILES, 생물학적 제제: 서열).</span>
+                                    </span>
                                 </label>
                                 <input type="text" id="smiles" class="form-input font-mono text-sm"
                                     placeholder="CCOc1ccc(cc1)C(=O)N2CCC(CC2)c3c[nH]c4c3cccc4"
@@ -366,6 +489,10 @@
                                 <label class="form-label">
                                     Indication
                                     <span class="text-red-500">*</span>
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">약물이 목표로 하는 적응증(질환)입니다.</span>
+                                    </span>
                                 </label>
                                 <input type="text" id="indication" class="form-input" placeholder="Oncology"
                                     value="{{ form_data.indication or '' }}" required>
@@ -373,11 +500,10 @@
                             <div>
                                 <label class="form-label">
                                     Mechanism of Action
-                                    <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        title="e.g., PD-1 수용체 억제제, GLP-1 작용제">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">약물이 생체 내에서 효과를 나타내는 구체적인 작용 기전입니다.</span>
+                                    </span>
                                 </label>
                                 <input type="text" id="mechanism" class="form-input"
                                     placeholder="예: PD-1 수용체 억제제, GLP-1 작용제" value="{{ form_data.mechanism or '' }}">
@@ -387,6 +513,10 @@
                                     <label class="form-label">
                                         Dose (mg)
                                         <span class="text-red-500">*</span>
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">임상시험에서 투여될 약물의 용량입니다.</span>
+                                        </span>
                                     </label>
                                     <input type="number" id="dose_mg" class="form-input" placeholder="100"
                                         value="{{ form_data.dose_mg or '' }}" required>
@@ -394,11 +524,10 @@
                                 <div>
                                     <label class="form-label">
                                         Regimen
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                            title="Dosing frequency">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">약물의 투여 주기 및 방법입니다 (예: QD-1일 1회, BID-1일 2회).</span>
+                                        </span>
                                     </label>
                                     <select id="dosing_regimen" class="form-input">
                                         <option value="QD" {{ 'selected' if form_data and form_data.dosing_regimen=='QD'
@@ -418,8 +547,8 @@
                 </div>
 
                 <!-- Section 5: PK & Safety Data (from Models) -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="collapsible-header flex items-center justify-between px-5 py-4 border-b border-gray-100"
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div class="collapsible-header rounded-t-xl flex items-center justify-between px-5 py-4 border-b border-gray-100"
                         onclick="toggleSection(this)">
                         <div class="flex items-center gap-3">
                             <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -440,16 +569,24 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="form-label">
-                                        Cmax (ng/mL)
+                                        Cmax (µg/mL)
                                         <span class="text-red-500">*</span>
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">약물 투여 후 도달하는 최고 혈중 농도 예측치입니다.</span>
+                                        </span>
                                     </label>
                                     <input type="number" step="0.01" id="cmax" class="form-input" placeholder="1500.5"
                                         value="{{ form_data.cmax or '' }}" required>
                                 </div>
                                 <div>
                                     <label class="form-label">
-                                        AUC (ng·h/mL)
+                                        AUC (µg·h/mL)
                                         <span class="text-red-500">*</span>
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">혈중 약물 농도-시간 곡선 아래의 면적으로, 전신 노출도를 의미합니다.</span>
+                                        </span>
                                     </label>
                                     <input type="number" step="0.01" id="auc" class="form-input" placeholder="25000"
                                         value="{{ form_data.auc or '' }}" required>
@@ -460,12 +597,22 @@
                                     <label class="form-label">
                                         t½ (hours)
                                         <span class="text-red-500">*</span>
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">약물의 혈중 농도가 절반으로 줄어드는 데 걸리는 시간입니다.</span>
+                                        </span>
                                     </label>
                                     <input type="number" step="0.1" id="t_half" class="form-input" placeholder="12.5"
                                         value="{{ form_data.t_half or '' }}" required>
                                 </div>
                                 <div>
-                                    <label class="form-label">Vss (L/kg)</label>
+                                    <label class="form-label">
+                                        Vss (L/kg)
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">정상 상태에서의 약물 분포 용적입니다.</span>
+                                        </span>
+                                    </label>
                                     <input type="number" step="0.01" id="vss" class="form-input" placeholder="0.5"
                                         value="{{ form_data.vss or '' }}">
                                 </div>
@@ -475,12 +622,22 @@
                                     <label class="form-label">
                                         hERG Margin (x-fold)
                                         <span class="text-red-500">*</span>
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">심장 독성(hERG 채널 억제) 발생 가능성에 대한 안전역입니다.</span>
+                                        </span>
                                     </label>
                                     <input type="number" step="0.1" id="herg_margin" class="form-input" placeholder="30"
                                         value="{{ form_data.herg_margin or '30' }}" required>
                                 </div>
                                 <div>
-                                    <label class="form-label">Hepatotoxicity Risk</label>
+                                    <label class="form-label">
+                                        Hepatotoxicity Risk
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">간 독성 발생 위험도 예측 결과입니다.</span>
+                                        </span>
+                                    </label>
                                     <select id="hepato_risk" class="form-input">
                                         <option value="Low" {{ 'selected' if form_data and form_data.hepato_risk=='Low'
                                             }}>
@@ -493,7 +650,13 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="form-label">QSAR Results Summary</label>
+                                <label class="form-label">
+                                    QSAR Results Summary
+                                    <span class="tooltip-trigger">
+                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span class="tooltip-content">구조-활성 관계(QSAR) 모델을 통한 독성 예측 결과 요약입니다.</span>
+                                    </span>
+                                </label>
                                 <textarea id="qsar_results_formatted" class="form-input" rows="2"
                                     placeholder="No significant risks identified.">{{ form_data.qsar_results_formatted or 'No significant risks identified.' }}</textarea>
                             </div>
@@ -502,12 +665,22 @@
                                     <label class="form-label">
                                         Overall Safety Score (0-100)
                                         <span class="text-red-500">*</span>
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">AI 모델이 예측한 종합적인 약물 안전성 점수입니다 (0-100점).</span>
+                                        </span>
                                     </label>
                                     <input type="number" id="overall_score" class="form-input" placeholder="75"
                                         value="{{ form_data.overall_score or '75' }}" min="0" max="100" required>
                                 </div>
                                 <div>
-                                    <label class="form-label">Risk Category</label>
+                                    <label class="form-label">
+                                        Risk Category
+                                        <span class="tooltip-trigger">
+                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="tooltip-content">종합 점수에 따른 안전성 위험 등급입니다.</span>
+                                        </span>
+                                    </label>
                                     <select id="risk_category" class="form-input">
                                         <option value="Low" {{ 'selected' if form_data and
                                             form_data.risk_category=='Low' }}>Low Risk</option>
@@ -691,11 +864,22 @@
         const isOpen = content.classList.contains('open');
 
         if (isOpen) {
-            content.classList.remove('open');
-            header.classList.add('collapsed');
+            content.style.overflow = 'hidden'; // Ensure hidden for transition
+            requestAnimationFrame(() => {
+                content.classList.remove('open');
+                header.classList.add('collapsed');
+            });
         } else {
+            content.style.overflow = 'hidden'; // Ensure hidden during transition
             content.classList.add('open');
             header.classList.remove('collapsed');
+            
+            // Allow overflow after transition for tooltips
+            setTimeout(() => {
+                if(content.classList.contains('open')) {
+                    content.style.overflow = 'visible';
+                }
+            }, 300);
         }
     }
 
@@ -792,6 +976,11 @@
         if (initialPhase) {
             updatePhaseData(initialPhase);
         }
+        
+        // Ensure open sections allow overflow for tooltips
+        document.querySelectorAll('.collapsible-content.open').forEach(el => {
+            el.style.overflow = 'visible';
+        });
     });
 </script>
 {% endblock %}

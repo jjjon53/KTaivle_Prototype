@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}Cohort Analysis - PharmaTwin{% endblock %}
+{% block title %}Cohort Analysis - Pyxidis{% endblock %}
 
 {% block extra_css %}
 {{ super() }}
@@ -299,8 +299,8 @@
                 <h1 class="text-2xl font-bold text-gray-900">{{ cohort.name }}</h1>
             </div>
             <div class="text-sm text-gray-500">
-                {% if phase == '1' %}200mg 코호트 | N=6
-                {% elif phase == '2' %}300mg 코호트 (RP2D) | N=12
+                {% if phase == '1' %}{{ cohort.drug_params.get('dose_mg', 100) }}mg 코호트 | N=6
+                {% elif phase == '2' %}{{ cohort.drug_params.get('dose_mg', 100) }}mg 코호트 (RP2D) | N=12
                 {% else %}시험군 코호트 | N=15{% endif %}
             </div>
         </div>
@@ -312,7 +312,8 @@
             <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="dashboard-card stat-card teal">
                     <p class="stat-label">코호트 용량</p>
-                    <p class="stat-value">200<span class="text-lg ml-1">mg</span></p>
+                    <p class="stat-value">{{ cohort.drug_params.get('dose_mg', 100) }}<span
+                            class="text-lg ml-1">mg</span></p>
                     <p class="stat-sub">1일 1회 경구 투여</p>
                 </div>
                 <div class="dashboard-card stat-card amber delay-100">
@@ -322,12 +323,13 @@
                 </div>
                 <div class="dashboard-card stat-card teal delay-200">
                     <p class="stat-label">평균 Cmax</p>
-                    <p class="stat-value">195.6<span class="text-lg ml-1">ng/mL</span></p>
+                    <p class="stat-value">{{ avg_cmax }}<span class="text-lg ml-1">µg/mL</span></p>
                     <p class="stat-sub">코호트 평균</p>
                 </div>
                 <div class="dashboard-card stat-card indigo delay-300">
                     <p class="stat-label">평균 t1/2</p>
-                    <p class="stat-value">12.4<span class="text-lg ml-1">hr</span></p>
+                    <p class="stat-value">{% if avg_t12 > 0 %}{{ avg_t12 }}{% else %}12.4{% endif %}<span
+                            class="text-lg ml-1">hr</span></p>
                     <p class="stat-sub">코호트 평균 반감기</p>
                 </div>
             </section>
@@ -343,7 +345,7 @@
             <div id="p1-pk" class="tab-content active space-y-6">
                 <div class="dashboard-card chart-card">
                     <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 PK Profile (Spaghetti Plot)</h3>
-                    <p class="text-sm text-gray-500 mb-4">200mg 코호트 6명 환자의 개별 혈중 농도-시간 곡선</p>
+                    <p class="text-sm text-gray-500 mb-4">{{ cohort.drug_params.get('dose_mg', 100) }}mg 코호트 {{ n_subjects }}명 환자의 개별 혈중 농도-시간 곡선</p>
                     <div class="chart-container"><canvas id="p1SpaghettiChart"></canvas></div>
                 </div>
                 <div class="dashboard-card">
@@ -353,9 +355,9 @@
                             <thead>
                                 <tr>
                                     <th>환자 ID</th>
-                                    <th>Cmax (ng/mL)</th>
+                                    <th>Cmax (µg/mL)</th>
                                     <th>Tmax (hr)</th>
-                                    <th>AUC (ng·hr/mL)</th>
+                                    <th>AUC (µg·hr/mL)</th>
                                     <th>t1/2 (hr)</th>
                                     <th>CL/F (L/hr)</th>
                                 </tr>
@@ -370,7 +372,7 @@
             <div id="p1-ae" class="tab-content space-y-6">
                 <div class="dashboard-card">
                     <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 이상반응 프로파일</h3>
-                    <p class="text-sm text-gray-500 mb-4">400mg 코호트 각 환자의 이상반응 발생 현황 (Grade 0-3)</p>
+                    <p class="text-sm text-gray-500 mb-4">{{ cohort.drug_params.get('dose_mg', 100) }}mg 코호트 각 환자의 이상반응 발생 현황 (Grade 0-3)</p>
                     <div class="overflow-x-auto">
                         <table class="data-table">
                             <thead>
@@ -408,7 +410,7 @@
             <div id="p1-pgx" class="tab-content space-y-6">
                 <div class="dashboard-card">
                     <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 약물유전체 프로파일</h3>
-                    <p class="text-sm text-gray-500 mb-4">400mg 코호트 각 환자의 CYP 유전자형 및 PK 영향</p>
+                    <p class="text-sm text-gray-500 mb-4">{{ cohort.drug_params.get('dose_mg', 100) }}mg 코호트 각 환자의 CYP 유전자형 및 PK 영향</p>
                     <div class="overflow-x-auto">
                         <table class="data-table">
                             <thead>
@@ -416,8 +418,8 @@
                                     <th>환자 ID</th>
                                     <th>CYP2D6 표현형</th>
                                     <th>CYP3A4 유전자형</th>
-                                    <th>AUC (ng·hr/mL)</th>
-                                    <th>Cmax (ng/mL)</th>
+                                    <th>AUC (µg·hr/mL)</th>
+                                    <th>Cmax (µg/mL)</th>
                                 </tr>
                             </thead>
                             <tbody id="p1PgxTable"></tbody>
@@ -477,7 +479,7 @@
             <div id="p2-response" class="tab-content active space-y-6">
                 <div class="dashboard-card chart-card">
                     <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 종양 반응 (Waterfall Plot)</h3>
-                    <p class="text-sm text-gray-500 mb-4">300mg 코호트 12명 환자의 최대 종양 크기 변화율 (%)</p>
+                    <p class="text-sm text-gray-500 mb-4">{{ cohort.drug_params.get('dose_mg', 100) }}mg 코호트 {{ n_subjects }}명 환자의 최대 종양 크기 변화율 (%)</p>
                     <div class="chart-container"><canvas id="p2WaterfallChart"></canvas></div>
                     <div class="flex justify-center gap-6 mt-4">
                         <div class="flex items-center gap-2">
@@ -500,7 +502,7 @@
             <div id="p2-duration" class="tab-content space-y-6">
                 <div class="dashboard-card chart-card">
                     <h3 class="text-lg font-bold text-gray-800 mb-2">개별 환자 치료 기간 (Swimmer Plot)</h3>
-                    <p class="text-sm text-gray-500 mb-4">300mg 코호트 각 환자의 치료 지속 기간 (개월)</p>
+                    <p class="text-sm text-gray-500 mb-4">{{ cohort.drug_params.get('dose_mg', 100) }}mg 코호트 각 환자의 치료 지속 기간 (개월)</p>
                     <div class="chart-container"><canvas id="p2SwimmerChart"></canvas></div>
                 </div>
             </div>
@@ -656,42 +658,72 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // ===== Dummy Data =====
+    // ===== mPBPK Simulation Data (from backend) =====
+    const avgCmax = {{ avg_cmax|default (700) }};
+    const avgAuc = {{ avg_auc|default (8000) }};
+    const avgT12 = {{ avg_t12|default (12.4) }};
+    const nSubjects = {{ n_subjects|default (6) }};
+
+    // Generate individual patient variations (±15% random)
+    function generateVariation(base, variationPercent = 0.15) {
+        const min = base * (1 - variationPercent);
+        const max = base * (1 + variationPercent);
+        return Math.round((Math.random() * (max - min) + min) * 10) / 10;
+    }
+
+    // First, generate pk data array
+    const pkData = Array.from({ length: Math.min(nSubjects, 6) }, (_, i) => ({
+        patient: `P${String(i + 1).padStart(2, '0')}`,
+        cmax: generateVariation(avgCmax > 0 ? avgCmax : 700),
+        tmax: 2,
+        auc: Math.round(generateVariation(avgAuc > 0 ? avgAuc : 8000)),
+        t12: generateVariation(avgT12 > 0 ? avgT12 : 12.4, 0.1),
+        cl: generateVariation(50, 0.15)
+    }));
+
+    // Generate pkTimeSeries using pkData
+    const pkTimeSeriesData = (() => {
+        const times = [0, 1, 2, 4, 8, 12, 24, 48];
+        return times.map(t => {
+            const row = { time: t };
+            for (let i = 0; i < pkData.length; i++) {
+                const patientKey = `P${String(i + 1).padStart(2, '0')}`;
+                const baseCmax = pkData[i].cmax || avgCmax;
+                if (t === 0) row[patientKey] = 0;
+                else if (t === 1) row[patientKey] = Math.round(baseCmax * 0.8);
+                else if (t === 2) row[patientKey] = Math.round(baseCmax);
+                else if (t === 4) row[patientKey] = Math.round(baseCmax * 0.72);
+                else if (t === 8) row[patientKey] = Math.round(baseCmax * 0.39);
+                else if (t === 12) row[patientKey] = Math.round(baseCmax * 0.2);
+                else if (t === 24) row[patientKey] = Math.round(baseCmax * 0.06);
+                else row[patientKey] = Math.round(baseCmax * 0.02);
+            }
+            return row;
+        });
+    })();
+
     const phase1Data = {
-        pk: [
-            { patient: "P01", cmax: 720, tmax: 2, auc: 8450, t12: 17.2, cl: 47.3 },
-            { patient: "P02", cmax: 680, tmax: 2, auc: 7820, t12: 18.5, cl: 51.2 },
-            { patient: "P03", cmax: 750, tmax: 2, auc: 8120, t12: 16.8, cl: 49.3 },
-            { patient: "P04", cmax: 810, tmax: 2, auc: 9280, t12: 19.8, cl: 43.1 },
-            { patient: "P05", cmax: 640, tmax: 2, auc: 7150, t12: 15.5, cl: 55.9 },
-            { patient: "P06", cmax: 695, tmax: 2, auc: 7680, t12: 17.8, cl: 52.1 }
-        ],
-        pkTimeSeries: [
-            { time: 0, P01: 0, P02: 0, P03: 0, P04: 0, P05: 0, P06: 0 },
-            { time: 1, P01: 580, P02: 620, P03: 545, P04: 690, P05: 510, P06: 605 },
-            { time: 2, P01: 720, P02: 680, P03: 750, P04: 810, P05: 640, P06: 695 },
-            { time: 4, P01: 520, P02: 480, P03: 560, P04: 610, P05: 450, P06: 505 },
-            { time: 8, P01: 280, P02: 310, P03: 265, P04: 340, P05: 240, P06: 295 },
-            { time: 12, P01: 145, P02: 165, P03: 130, P04: 185, P05: 120, P06: 155 },
-            { time: 24, P01: 45, P02: 55, P03: 38, P04: 68, P05: 32, P06: 48 },
-            { time: 48, P01: 12, P02: 18, P03: 10, P04: 22, P05: 8, P06: 15 }
-        ],
-        ae: [
-            { patient: "P01", fatigue: 1, nausea: 0, headache: 1, diarrhea: 0, rash: 0, dlt: false },
-            { patient: "P02", fatigue: 2, nausea: 1, headache: 0, diarrhea: 1, rash: 0, dlt: false },
-            { patient: "P03", fatigue: 1, nausea: 1, headache: 1, diarrhea: 0, rash: 1, dlt: false },
-            { patient: "P04", fatigue: 2, nausea: 2, headache: 1, diarrhea: 2, rash: 0, dlt: false },
-            { patient: "P05", fatigue: 1, nausea: 0, headache: 0, diarrhea: 0, rash: 0, dlt: false },
-            { patient: "P06", fatigue: 3, nausea: 2, headache: 2, diarrhea: 1, rash: 1, dlt: true }
-        ],
-        pgx: [
-            { patient: "P01", cyp2d6: "EM", cyp3a4: "*1/*1", auc: 8450, cmax: 720 },
-            { patient: "P02", cyp2d6: "IM", cyp3a4: "*1/*1", auc: 7820, cmax: 680 },
-            { patient: "P03", cyp2d6: "EM", cyp3a4: "*1/*22", auc: 8120, cmax: 750 },
-            { patient: "P04", cyp2d6: "PM", cyp3a4: "*1/*1", auc: 9280, cmax: 810 },
-            { patient: "P05", cyp2d6: "EM", cyp3a4: "*1/*1", auc: 7150, cmax: 640 },
-            { patient: "P06", cyp2d6: "IM", cyp3a4: "*1/*22", auc: 7680, cmax: 695 }
-        ]
+        pk: pkData,
+        pkTimeSeries: pkTimeSeriesData,
+        ae: Array.from({ length: pkData.length }, (_, i) => ({
+            patient: `P${String(i + 1).padStart(2, '0')}`,
+            fatigue: Math.floor(Math.random() * 3),
+            nausea: Math.floor(Math.random() * 3),
+            headache: Math.floor(Math.random() * 2),
+            diarrhea: Math.floor(Math.random() * 2),
+            rash: Math.floor(Math.random() * 2),
+            dlt: Math.random() < 0.1
+        })),
+        pgx: Array.from({ length: pkData.length }, (_, i) => {
+            const phenotypes = ['EM', 'IM', 'PM'];
+            return {
+                patient: `P${String(i + 1).padStart(2, '0')}`,
+                cyp2d6: phenotypes[Math.floor(Math.random() * 3)],
+                cyp3a4: Math.random() > 0.3 ? '*1/*1' : '*1/*22',
+                auc: pkData[i].auc,
+                cmax: pkData[i].cmax
+            };
+        })
     };
 
     const phase2Data = {

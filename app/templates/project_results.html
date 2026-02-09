@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}Results - {{ project.title }}{% endblock %}
+{% block title %}Results - {{ project.title }} - Pyxidis{% endblock %}
 
 {% block header_left %}
 <div class="flex items-center gap-4">
@@ -87,12 +87,12 @@
                 class="phase-btn px-4 py-2 text-sm font-medium rounded-lg text-gray-600 flex items-center gap-2">
                 Phase 1
             </button>
-            <button onclick="switchPhase('2')" id="tab-phase-2"
-                class="phase-btn px-4 py-2 text-sm font-medium rounded-lg text-gray-600 flex items-center gap-2">
+            <button onclick="switchPhase('2')" id="tab-phase-2" {% if not has_phase2 %}disabled{% endif %}
+                class="phase-btn px-4 py-2 text-sm font-medium rounded-lg text-gray-600 flex items-center gap-2 {% if not has_phase2 %}opacity-50 cursor-not-allowed{% endif %}">
                 Phase 2
             </button>
-            <button onclick="switchPhase('3')" id="tab-phase-3"
-                class="phase-btn px-4 py-2 text-sm font-medium rounded-lg text-gray-600 flex items-center gap-2">
+            <button onclick="switchPhase('3')" id="tab-phase-3" {% if not has_phase3 %}disabled{% endif %}
+                class="phase-btn px-4 py-2 text-sm font-medium rounded-lg text-gray-600 flex items-center gap-2 {% if not has_phase3 %}opacity-50 cursor-not-allowed{% endif %}">
                 Phase 3
             </button>
         </div>
@@ -133,7 +133,8 @@
                         </svg>
                         MTD (최대내약용량)
                     </p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-2">200 <span class="text-sm text-gray-500">mg</span>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p1_stats.dose }} <span
+                            class="text-sm text-gray-500">mg</span>
                     </h3>
                     <p class="text-xs text-cyan-600 mt-1 font-medium bg-cyan-50 inline-block px-1.5 py-0.5 rounded">용량
                         제한 독성 기준</p>
@@ -160,10 +161,10 @@
                         </svg>
                         평균 Cmax
                     </p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-2">195.6 <span
-                            class="text-sm text-gray-500">ng/mL</span>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p1_stats.cmax }} <span
+                            class="text-sm text-gray-500">µg/mL</span>
                     </h3>
-                    <p class="text-xs text-gray-500 mt-1">200mg 코호트</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ p1_stats.dose }}mg 코호트</p>
                 </div>
                 <!-- KPI 4: t½ -->
                 <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover-card">
@@ -174,7 +175,8 @@
                         </svg>
                         평균 t½
                     </p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-2">12.4 <span class="text-sm text-gray-500">hr</span>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p1_stats.t12 }} <span
+                            class="text-sm text-gray-500">hr</span>
                     </h3>
                     <p class="text-xs text-gray-500 mt-1">제거 반감기</p>
                 </div>
@@ -215,7 +217,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="text-lg font-bold text-gray-900 mb-1">PK Profile (Spaghetti Plot)</h3>
-                        <p class="text-sm text-gray-500 mb-4">개별 환자별 약물 혈중 농도 변화 (200mg 코호트)</p>
+                        <p class="text-sm text-gray-500 mb-4">개별 환자별 약물 혈중 농도 변화 ({{ p1_stats.dose }}mg 코호트)</p>
                         <div id="chart-pk-profile" class="w-full h-80"></div>
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -238,37 +240,37 @@
                                     <th class="px-6 py-3">50mg</th>
                                     <th class="px-6 py-3">100mg</th>
                                     <th class="px-6 py-3">150mg</th>
-                                    <th class="px-6 py-3 text-cyan-600 font-bold">200mg (MTD)</th>
+                                    <th class="px-6 py-3 text-cyan-600 font-bold">{{ p1_stats.dose }}mg (MTD)</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 <tr class="hover:bg-gray-50/50 transition">
-                                    <td class="px-6 py-4 font-medium text-gray-600">Cmax (ng/mL)</td>
-                                    <td class="px-6 py-4 text-gray-500">52.3 ± 8.2</td>
-                                    <td class="px-6 py-4 text-gray-500">98.5 ± 15.4</td>
-                                    <td class="px-6 py-4 text-gray-500">148.2 ± 22.1</td>
-                                    <td class="px-6 py-4 text-cyan-600 font-bold">195.6 ± 28.5</td>
+                                    <td class="px-6 py-4 font-medium text-gray-600">Cmax (µg/mL)</td>
+                                    <td class="px-6 py-4 text-gray-500">0.05 ± 0.01</td>
+                                    <td class="px-6 py-4 text-gray-500">0.10 ± 0.02</td>
+                                    <td class="px-6 py-4 text-gray-500">0.15 ± 0.02</td>
+                                    <td class="px-6 py-4 text-cyan-600 font-bold">{{ p1_stats.cmax }}</td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/50 transition">
-                                    <td class="px-6 py-4 font-medium text-gray-600">AUC0-∞ (ng·hr/mL)</td>
-                                    <td class="px-6 py-4 text-gray-500">520 ± 85</td>
-                                    <td class="px-6 py-4 text-gray-500">1020 ± 165</td>
-                                    <td class="px-6 py-4 text-gray-500">1520 ± 248</td>
-                                    <td class="px-6 py-4 text-cyan-600 font-bold">2050 ± 335</td>
+                                    <td class="px-6 py-4 font-medium text-gray-600">AUC0-∞ (µg·hr/mL)</td>
+                                    <td class="px-6 py-4 text-gray-500">0.5 ± 0.1</td>
+                                    <td class="px-6 py-4 text-gray-500">1.0 ± 0.2</td>
+                                    <td class="px-6 py-4 text-gray-500">1.5 ± 0.2</td>
+                                    <td class="px-6 py-4 text-cyan-600 font-bold">{{ p1_stats.auc }}</td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/50 transition">
                                     <td class="px-6 py-4 font-medium text-gray-600">Tmax (hr)</td>
                                     <td class="px-6 py-4 text-gray-500">2.0 ± 0.5</td>
                                     <td class="px-6 py-4 text-gray-500">2.2 ± 0.6</td>
                                     <td class="px-6 py-4 text-gray-500">2.1 ± 0.5</td>
-                                    <td class="px-6 py-4 text-cyan-600 font-bold">2.3 ± 0.7</td>
+                                    <td class="px-6 py-4 text-cyan-600 font-bold">{{ p1_stats.tmax }}</td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/50 transition">
                                     <td class="px-6 py-4 font-medium text-gray-600">t1/2 (hr)</td>
                                     <td class="px-6 py-4 text-gray-500">11.8 ± 2.1</td>
                                     <td class="px-6 py-4 text-gray-500">12.2 ± 2.4</td>
                                     <td class="px-6 py-4 text-gray-500">12.1 ± 2.2</td>
-                                    <td class="px-6 py-4 text-cyan-600 font-bold">12.4 ± 2.5</td>
+                                    <td class="px-6 py-4 text-cyan-600 font-bold">{{ p1_stats.t12 }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -287,8 +289,8 @@
                                 </svg>
                                 최고 혈중 농도 (Cmax)
                             </p>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-2">195.6 <span
-                                    class="text-base font-normal text-gray-500">ng/mL</span></h3>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p1_stats.cmax }} <span
+                                    class="text-base font-normal text-gray-500">µg/mL</span></h3>
                         </div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover-card">
@@ -301,8 +303,8 @@
                                 </svg>
                                 AUC (곡선하면적)
                             </p>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-2">2050 <span
-                                    class="text-base font-normal text-gray-500">ng·hr/mL</span></h3>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p1_stats.auc }} <span
+                                    class="text-base font-normal text-gray-500">µg·hr/mL</span></h3>
                         </div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover-card">
@@ -315,7 +317,7 @@
                                 </svg>
                                 시험 대상자
                             </p>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-2">24 <span
+                            <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p1_stats.n_subjects }} <span
                                     class="text-base font-normal text-gray-500">명</span></h3>
                         </div>
                     </div>
@@ -329,7 +331,7 @@
                                 </svg>
                                 반감기 (t1/2)
                             </p>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-2">12.4 <span
+                            <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p1_stats.t12 }} <span
                                     class="text-base font-normal text-gray-500">hr</span></h3>
                         </div>
                     </div>
@@ -524,7 +526,8 @@
                         </svg>
                         시험 대상자
                     </p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-2">86 <span class="text-sm text-gray-500">명</span>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p2_stats.n_subjects }} <span
+                            class="text-sm text-gray-500">명</span>
                     </h3>
                 </div>
                 <!-- KPI 4 -->
@@ -536,7 +539,8 @@
                         </svg>
                         최적 용량 (RP2D)
                     </p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-2">150 <span class="text-sm text-gray-500">mg</span>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p2_stats.dose }} <span
+                            class="text-sm text-gray-500">mg</span>
                     </h3>
                 </div>
             </div>
@@ -597,7 +601,7 @@
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover-card text-center">
                         <h3 class="text-4xl font-extrabold text-[#A855F7] mb-2">8.2</h3>
-                        <p class="text-sm font-medium text-gray-500 mb-1">반응 기간 중앙값 (개월)</p>
+                        <p class="text-sm font-medium text-gray-500 mb-1">반응 기간 중앙값 (month)</p>
                         <p class="text-xs text-gray-400">95% CI: 6.4-10.8</p>
                     </div>
                 </div>
@@ -638,7 +642,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
                             <p class="text-xs font-medium text-gray-500 mb-1">선정 용량 (RP2D)</p>
-                            <h4 class="text-2xl font-bold text-lime-600">150mg</h4>
+                            <h4 class="text-2xl font-bold text-lime-600">{{ p2_stats.dose }}mg</h4>
                         </div>
                         <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
                             <p class="text-xs font-medium text-gray-500 mb-1">ORR at RP2D</p>
@@ -777,22 +781,47 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <!-- KPI 1 -->
                 <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover-card">
-                    <p class="text-sm font-medium text-gray-500">위험비 (HR)</p>
+                    <p class="text-sm font-medium text-gray-500 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        위험비 (HR)
+                    </p>
                     <h3 class="text-2xl font-bold text-gray-900 mt-2">0.68</h3>
                     <p class="text-xs text-purple-600 mt-1 font-medium bg-purple-50 inline-block px-1.5 py-0.5 rounded">
                         32% Risk Reduction</p>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover-card">
-                    <p class="text-sm font-medium text-gray-500">p-value</p>
+                    <p class="text-sm font-medium text-gray-500 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        p-value
+                    </p>
                     <h3 class="text-2xl font-bold text-gray-900 mt-2">&lt; 0.001</h3>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover-card">
-                    <p class="text-sm font-medium text-gray-500">대상자 수</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-2">420 <span class="text-sm text-gray-500">명</span>
+                    <p class="text-sm font-medium text-gray-500 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        시험 대상자
+                    </p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-2">{{ p3_stats.n_subjects }} <span
+                            class="text-sm text-gray-500">명</span>
                     </h3>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover-card">
-                    <p class="text-sm font-medium text-gray-500">PFS 중앙값</p>
+                    <p class="text-sm font-medium text-gray-500 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        PFS 중앙값
+                    </p>
                     <h3 class="text-2xl font-bold text-gray-900 mt-2">12.4 <span class="text-sm text-gray-500">mo</span>
                     </h3>
                 </div>
@@ -1039,7 +1068,12 @@
     const COLORS = ['#06B6D4', '#84CC16', '#A855F7', '#F59E0B', '#DC2626'];
 
     // Phase 1
-    const pkProfileData = [
+    // Base PK profile data (normalized to Cmax≈200 ng/mL)
+    const baseCmax = 198; // Reference Cmax in base data
+    const actualCmax = {{ p1_stats.cmax|default (195.6) }}; // Actual Cmax from simulation
+    const scaleFactor = actualCmax / baseCmax;
+
+    const pkProfileDataBase = [
         { time: 0, p1: 0, p2: 0, p3: 0, mean: 0 },
         { time: 0.5, p1: 45, p2: 52, p3: 38, mean: 47.6 },
         { time: 1, p1: 120, p2: 135, p3: 105, mean: 126 },
@@ -1050,6 +1084,15 @@
         { time: 12, p1: 28, p2: 35, p3: 22, mean: 30.6 },
         { time: 24, p1: 8, p2: 12, p3: 5, mean: 9.6 },
     ];
+
+    // Scale all Y values by the scale factor to match actual Cmax
+    const pkProfileData = pkProfileDataBase.map(d => ({
+        time: d.time,
+        p1: Math.round(d.p1 * scaleFactor * 10) / 10,
+        p2: Math.round(d.p2 * scaleFactor * 10) / 10,
+        p3: Math.round(d.p3 * scaleFactor * 10) / 10,
+        mean: Math.round(d.mean * scaleFactor * 10) / 10
+    }));
     const aeHeatmapData = [
         { name: "Gastrointestinal", data: [{ x: '50mg', y: 2 }, { x: '100mg', y: 4 }, { x: '150mg', y: 6 }, { x: '200mg', y: 8 }] },
         { name: "Nervous Sys", data: [{ x: '50mg', y: 1 }, { x: '100mg', y: 2 }, { x: '150mg', y: 3 }, { x: '200mg', y: 5 }] },
@@ -1144,254 +1187,307 @@
             colors: ['#06B6D4', '#6b21a8'],
         }).render();
 
-        new ApexCharts(document.querySelector("#chart-pk-auc-bar"), {
-            ...lightOptions, series: [{ data: [{ x: '50mg', y: 500 }, { x: '100mg', y: 950 }, { x: '150mg', y: 1400 }, { x: '200mg', y: 2000 }] }],
-            chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
-            colors: ['#06B6D4'],
-        }).render();
+        // 2. PK AUC Bar Chart (Dose Proportionality) - Proportional Scaling
+        var baseRatios = [
+            { dose: 50, ratio: 500 },
+            { dose: 100, ratio: 950 },
+            { dose: 150, ratio: 1400 },
+            { dose: 200, ratio: 2000 }
+        ];
 
-        // P1 Safety (Refactored)
-        // DLT: Grouped Bar (Subjects vs DLT Events)
-        new ApexCharts(document.querySelector("#chart-dlt"), {
-            ...lightOptions,
-            series: [
-                { name: '대상자 수', data: [3, 6, 6, 6, 3] },
-                { name: 'DLT 발생', data: [0, 0, 1, 1, 2] }
-            ],
-            chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
-            plotOptions: { bar: { columnWidth: '50%' } },
-            colors: ['#06B6D4', '#DC2626'], // Cyan (Subjects), Red (Events)
-            xaxis: { categories: ['50mg', '100mg', '150mg', '200mg', '250mg'], axisBorder: { show: false }, axisTicks: { show: false } }
-        }).render();
+        var actualDose = {{ p1_stats.dose|default (100)
+    }};
+    var actualAuc = {{ p1_stats.auc|default (2450) }};
 
-        // AE: Stacked Bar (SOC by Dose)
-        new ApexCharts(document.querySelector("#chart-ae-stacked"), {
-            ...lightOptions,
-            series: [
-                { name: '50mg', data: [2, 1, 1, 1, 1] }, // Gastro, Nervous, Skin, Cardio, Hepato
-                { name: '100mg', data: [4, 2, 2, 2, 1] },
-                { name: '150mg', data: [6, 3, 3, 0, 0] },
-                { name: '200mg', data: [8, 5, 0, 0, 0] }
-            ],
-            chart: { type: 'bar', height: 320, stacked: true, background: 'transparent', toolbar: { show: false } },
-            plotOptions: { bar: { horizontal: true } },
-            xaxis: { categories: ['위장관계', '신경계', '피부', '심혈관계', '간담도계'] },
-            colors: ['#06B6D4', '#84CC16', '#a855f7', '#f59e0b'], // Dose Colors
-            legend: { position: 'bottom' }
-        }).render();
+    // 실제 용량의 기준 비율 찾기
+    var actualRatioObj = baseRatios.find(function (d) { return d.dose === actualDose; });
+    var baseRatioValue = actualRatioObj ? actualRatioObj.ratio : 950;
 
-        // P1 PGx (Refactored)
-        // Genotype Bar (AUC Distribution)
-        new ApexCharts(document.querySelector("#chart-p1-genotype-bar"), {
-            ...lightOptions, series: [{ data: [{ x: 'EM', y: 1850, fillColor: '#06B6D4' }, { x: 'IM', y: 2450, fillColor: '#84CC16' }, { x: 'PM', y: 3200, fillColor: '#DC2626' }] }],
-            chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
-            plotOptions: { bar: { distributed: true } },
-            yaxis: { title: { text: 'AUC (ng·hr/mL)' } }
-        }).render();
+    // 스케일 팩터 계산 (실제 AUC / 기준 비율)
+    var scaleFactor = actualAuc / baseRatioValue;
 
-        // Genotype Scatter (AUC vs Cmax)
-        new ApexCharts(document.querySelector("#chart-p1-genotype-scatter"), {
-            ...lightOptions,
-            series: [
-                { name: 'EM (Extensive)', data: [{ x: 1850, y: 195 }] },
-                { name: 'IM (Intermediate)', data: [{ x: 2450, y: 245 }] },
-                { name: 'PM (Poor)', data: [{ x: 3200, y: 312 }] }
-            ],
-            chart: { type: 'scatter', height: 320, background: 'transparent', toolbar: { show: false } },
-            colors: ['#06B6D4', '#84CC16', '#DC2626'],
-            xaxis: { title: { text: 'AUC (ng·hr/mL)' }, min: 0, max: 3500 },
-            yaxis: { title: { text: 'Cmax (ng/mL)' }, min: 0 },
-            markers: { size: 10 }
-        }).render();
+    // 차트 데이터 생성 - 실제 용량은 파란색, 나머지는 스케일된 회색
+    var chartData = baseRatios.map(function (d) {
+        var isActual = (d.dose === actualDose);
+        var scaledValue = Math.round(d.ratio * scaleFactor);
 
-        // P2 Efficacy - Waterfall
-        new ApexCharts(document.querySelector("#chart-waterfall"), {
-            ...lightOptions, series: [{ data: waterfallData }],
-            chart: { type: 'bar', height: 400, background: 'transparent', toolbar: { show: false } },
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    colors: {
-                        ranges: [
-                            { from: -100, to: -30, color: '#84CC16' }, // PR: Green
-                            { from: -29, to: 20, color: '#06B6D4' },  // SD: Blue
-                            { from: 21, to: 100, color: '#DC2626' }   // PD: Red
-                        ]
-                    },
-                    borderRadius: 2
+        return {
+            x: d.dose + 'mg',
+            y: isActual ? actualAuc : scaledValue,
+            fillColor: isActual ? '#0077a2' : '#cbd5e1'
+        };
+    });
+
+    new ApexCharts(document.querySelector("#chart-pk-auc-bar"), {
+        ...lightOptions,
+        series: [{ data: chartData }],
+        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
+        plotOptions: {
+            bar: {
+                distributed: true,
+                columnWidth: '60%'
+            }
+        },
+        legend: { show: false },
+        yaxis: {
+            labels: {
+                style: { colors: '#64748B' },
+                formatter: function (value) {
+                    return value >= 1000 ? (value / 1000).toFixed(1) + "k" : Math.round(value);
                 }
-            },
-            xaxis: {
-                min: -100, max: 50,
-                tickAmount: 5,
-                labels: { formatter: (val) => val + '%' }
-            },
-            annotations: {
-                xaxis: [
-                    { x: -30, borderColor: '#84CC16', strokeDashArray: 4, label: { text: 'PR', style: { color: '#84CC16' } } },
-                    { x: 20, borderColor: '#DC2626', strokeDashArray: 4, label: { text: 'PD', style: { color: '#DC2626' } } }
-                ]
             }
-        }).render();
-
-        /* Swimmer Plot removed from layout for now 
-        new ApexCharts(document.querySelector("#chart-swimmer"), {
-            ...lightOptions, series: [{ data: swimmerData }],
-            chart: { type: 'rangeBar', height: 320, background: 'transparent', toolbar: { show: false } },
-            plotOptions: { bar: { horizontal: true } }
-        }).render(); 
-        */
-
-        /* P2 Dose-Response: Curve (Efficacy vs Safety) */
-        new ApexCharts(document.querySelector("#chart-dose-response"), {
-            ...lightOptions,
-            series: [
-                { name: 'Efficacy (ORR)', type: 'line', data: [{ x: 50, y: 15 }, { x: 100, y: 28 }, { x: 150, y: 42 }, { x: 200, y: 52 }, { x: 250, y: 58 }, { x: 300, y: 62 }] },
-                { name: 'Safety (Toxicity)', type: 'line', data: [{ x: 50, y: 2 }, { x: 100, y: 12 }, { x: 150, y: 22 }, { x: 200, y: 38 }, { x: 250, y: 55 }, { x: 300, y: 72 }] }
-            ],
-            chart: { height: 320, background: 'transparent', toolbar: { show: false } }, // type will be mixed
-            stroke: { width: [3, 3], curve: 'smooth', dashArray: [0, 4] }, // Safety dotted
-            colors: ['#84CC16', '#DC2626'], // Green (Efficacy), Red (Safety)
-            xaxis: {
-                type: 'numeric', min: 50, max: 300, tickAmount: 5,
-                title: { text: 'Dose (mg)' }
-            },
-            yaxis: {
-                min: 0, max: 80,
-                title: { text: 'Rate (%)' }
-            },
-            annotations: {
-                xaxis: [
-                    { x: 150, borderColor: '#06B6D4', label: { text: 'RP2D', style: { color: '#fff', background: '#06B6D4' } } }
-                ]
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val.toFixed(1) + ' ng·hr/mL';
+                }
             }
-        }).render();
+        }
+    }).render();
 
-        /* P2 Dose Profile: Grouped Bar */
-        new ApexCharts(document.querySelector("#chart-dose-profile"), {
-            ...lightOptions,
-            series: [
-                { name: 'ORR (%)', data: [25, 42, 52] },
-                { name: 'DCR (%)', data: [55, 78, 65] },
-                { name: 'DLT (%)', data: [0, 8, 18] }
-            ],
-            chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
-            plotOptions: { bar: { columnWidth: '60%' } },
-            colors: ['#84CC16', '#06B6D4', '#d946ef'], // Green, Cyan, Fuchsia
-            xaxis: { categories: ['100mg', '150mg (RP2D)', '200mg'] }
-        }).render();
+    // P1 Safety (Refactored)
+    // DLT: Grouped Bar (Subjects vs DLT Events)
+    new ApexCharts(document.querySelector("#chart-dlt"), {
+        ...lightOptions,
+        series: [
+            { name: '대상자 수', data: [3, 6, 6, 6, 3] },
+            { name: 'DLT 발생', data: [0, 0, 1, 1, 2] }
+        ],
+        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
+        plotOptions: { bar: { columnWidth: '50%' } },
+        colors: ['#06B6D4', '#DC2626'], // Cyan (Subjects), Red (Events)
+        xaxis: { categories: ['50mg', '100mg', '150mg', '200mg', '250mg'], axisBorder: { show: false }, axisTicks: { show: false } }
+    }).render();
 
-        /* P2 Biomarker: Grouped Bar (ORR and DCR) */
-        new ApexCharts(document.querySelector("#chart-p2-biomarker-bar"), {
-            ...lightOptions,
-            series: [
-                { name: 'ORR', data: [62, 24, 42] },
-                { name: 'DCR', data: [88, 58, 78] }
-            ],
-            chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
-            plotOptions: { bar: { columnWidth: '50%' } },
-            colors: ['#84CC16', '#06B6D4'], // Green for ORR, Cyan for DCR to match cards
-            xaxis: { categories: ['Biomarker+', 'Biomarker-', 'Overall'] },
-            yaxis: { max: 100 }
-        }).render();
+    // AE: Stacked Bar (SOC by Dose)
+    new ApexCharts(document.querySelector("#chart-ae-stacked"), {
+        ...lightOptions,
+        series: [
+            { name: '50mg', data: [2, 1, 1, 1, 1] }, // Gastro, Nervous, Skin, Cardio, Hepato
+            { name: '100mg', data: [4, 2, 2, 2, 1] },
+            { name: '150mg', data: [6, 3, 3, 0, 0] },
+            { name: '200mg', data: [8, 5, 0, 0, 0] }
+        ],
+        chart: { type: 'bar', height: 320, stacked: true, background: 'transparent', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: true } },
+        xaxis: { categories: ['위장관계', '신경계', '피부', '심혈관계', '간담도계'] },
+        colors: ['#06B6D4', '#84CC16', '#a855f7', '#f59e0b'], // Dose Colors
+        legend: { position: 'bottom' }
+    }).render();
 
-        // P3 Survival - KM Curve (Step Line)
-        new ApexCharts(document.querySelector("#chart-km"), {
-            ...lightOptions,
-            series: [
-                { name: 'Treatment (DrugTx)', data: [{ x: 0, y: 100 }, { x: 3, y: 100 }, { x: 3, y: 88 }, { x: 6, y: 88 }, { x: 6, y: 82 }, { x: 9, y: 82 }, { x: 9, y: 75 }, { x: 12, y: 75 }, { x: 12, y: 70 }, { x: 15, y: 70 }, { x: 15, y: 65 }, { x: 18, y: 65 }, { x: 18, y: 62 }, { x: 21, y: 62 }, { x: 21, y: 58 }, { x: 24, y: 58 }, { x: 24, y: 55 }, { x: 27, y: 55 }, { x: 27, y: 52 }, { x: 30, y: 52 }, { x: 30, y: 50 }, { x: 33, y: 50 }, { x: 33, y: 48 }, { x: 36, y: 48 }] },
-                { name: 'Control (SOC)', data: [{ x: 0, y: 100 }, { x: 3, y: 90 }, { x: 3, y: 75 }, { x: 6, y: 75 }, { x: 6, y: 62 }, { x: 9, y: 62 }, { x: 9, y: 52 }, { x: 12, y: 52 }, { x: 12, y: 45 }, { x: 15, y: 45 }, { x: 15, y: 38 }, { x: 18, y: 38 }, { x: 18, y: 32 }, { x: 21, y: 32 }, { x: 21, y: 28 }, { x: 24, y: 28 }, { x: 24, y: 25 }, { x: 27, y: 25 }, { x: 27, y: 22 }, { x: 30, y: 22 }, { x: 30, y: 20 }, { x: 33, y: 20 }, { x: 33, y: 18 }, { x: 36, y: 18 }] }
-            ],
-            chart: { type: 'line', height: 400, background: 'transparent', toolbar: { show: false } },
-            stroke: { curve: 'straight', width: 3, dashArray: [0, 4] }, // Step-like via straight lines + data points
-            colors: ['#A855F7', '#64748B'], // Purple vs Slate
-            xaxis: {
-                title: { text: 'Time (Months)' },
-                type: 'numeric', min: 0, max: 36, tickAmount: 12
-            },
-            yaxis: {
-                title: { text: 'Survival Probability (%)' },
-                min: 0, max: 100
-            },
-            legend: { show: false }
-        }).render();
+    // P1 PGx (Refactored)
+    // Genotype Bar (AUC Distribution)
+    new ApexCharts(document.querySelector("#chart-p1-genotype-bar"), {
+        ...lightOptions, series: [{ data: [{ x: 'EM', y: 1850, fillColor: '#06B6D4' }, { x: 'IM', y: 2450, fillColor: '#84CC16' }, { x: 'PM', y: 3200, fillColor: '#DC2626' }] }],
+        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
+        plotOptions: { bar: { distributed: true } },
+        yaxis: { title: { text: 'AUC (ng·hr/mL)' } }
+    }).render();
 
-        /* P3 Subgroup: Forest Plot (Simulated with RangeBar) */
-        // Data format for rangeBar: { x: 'Category', y: [min, max] }
-        // We will misuse rangeBar to show CI, and scatter for Point Estimate is hard in mixed chart with rangeBar in Apex.
-        // Solution: Use RangeBar for CI, and try to add a scatter series? Or stick to simple RangeBar showing CI and center being the point.
-        // Let's use RangeBar and maybe "goals" or just rely on the bar representing the CI.
-        // Better yet, use a scatter chart with error bars if possible, but Apex doesn't support error bars easily.
-        // Alternative: Use RangeBar where y is [LowerCI, UpperCI]. The "point" is not explicitly shown but implied. 
-        // Image shows a dot on the line. 
-        // To mimic image: rangeBar for standard line + scatter for dot. (Apex supports RangeBar + Scatter mixed?) - No easily.
-        // Simplified: RangeBar for CI.
+    // Genotype Scatter (AUC vs Cmax)
+    new ApexCharts(document.querySelector("#chart-p1-genotype-scatter"), {
+        ...lightOptions,
+        series: [
+            { name: 'EM (Extensive)', data: [{ x: 1850, y: 195 }] },
+            { name: 'IM (Intermediate)', data: [{ x: 2450, y: 245 }] },
+            { name: 'PM (Poor)', data: [{ x: 3200, y: 312 }] }
+        ],
+        chart: { type: 'scatter', height: 320, background: 'transparent', toolbar: { show: false } },
+        colors: ['#06B6D4', '#84CC16', '#DC2626'],
+        xaxis: { title: { text: 'AUC (ng·hr/mL)' }, min: 0, max: 3500 },
+        yaxis: { title: { text: 'Cmax (ng/mL)' }, min: 0 },
+        markers: { size: 10 }
+    }).render();
 
-        new ApexCharts(document.querySelector("#chart-forest"), {
-            ...lightOptions,
-            series: [
-                {
-                    name: '95% CI',
-                    data: [
-                        { x: '전체 인구', y: [0.55, 0.84], goals: [{ value: 0.68, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
-                        { x: '연령 <65세', y: [0.48, 0.80], goals: [{ value: 0.62, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
-                        { x: '연령 ≥65세', y: [0.58, 0.97], goals: [{ value: 0.75, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
-                        { x: '남성', y: [0.50, 0.85], goals: [{ value: 0.65, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
-                        { x: '여성', y: [0.54, 0.96], goals: [{ value: 0.72, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
-                        { x: 'Biomarker+', y: [0.40, 0.68], goals: [{ value: 0.52, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] }, // Highlighted in image
-                        { x: 'Biomarker-', y: [0.68, 1.14], goals: [{ value: 0.88, strokeWidth: 8, strokeHeight: 8, strokeColor: '#F59E0B' }] },
-                        { x: 'ECOG 0', y: [0.44, 0.76], goals: [{ value: 0.58, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
-                        { x: 'ECOG 1', y: [0.62, 1.08], goals: [{ value: 0.82, strokeWidth: 8, strokeHeight: 8, strokeColor: '#F59E0B' }] }
+    // P2 Efficacy - Waterfall
+    new ApexCharts(document.querySelector("#chart-waterfall"), {
+        ...lightOptions, series: [{ data: waterfallData }],
+        chart: { type: 'bar', height: 400, background: 'transparent', toolbar: { show: false } },
+        plotOptions: {
+            bar: {
+                horizontal: true,
+                colors: {
+                    ranges: [
+                        { from: -100, to: -30, color: '#84CC16' }, // PR: Green
+                        { from: -29, to: 20, color: '#06B6D4' },  // SD: Blue
+                        { from: 21, to: 100, color: '#DC2626' }   // PD: Red
                     ]
-                }
-            ],
-            chart: { type: 'rangeBar', height: 400, background: 'transparent', toolbar: { show: false } },
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    barHeight: '10%' // Make lines thin
-                }
-            },
-            colors: ['#CBD5E1'], // Gray for the CI Line
-            xaxis: {
-                min: 0, max: 1.5, tickAmount: 3,
-                title: { text: 'Hazard Ratio (HR)' }
-            },
-            annotations: {
-                xaxis: [{ x: 1.0, borderColor: '#94a3b8', strokeDashArray: 4 }]
+                },
+                borderRadius: 2
             }
-        }).render();
+        },
+        xaxis: {
+            min: -100, max: 50,
+            tickAmount: 5,
+            labels: { formatter: (val) => val + '%' }
+        },
+        annotations: {
+            xaxis: [
+                { x: -30, borderColor: '#84CC16', strokeDashArray: 4, label: { text: 'PR', style: { color: '#84CC16' } } },
+                { x: 20, borderColor: '#DC2626', strokeDashArray: 4, label: { text: 'PD', style: { color: '#DC2626' } } }
+            ]
+        }
+    }).render();
 
-        /* P3 Precision: Genotype Charts */
-        // 1. Survival (PFS/OS) by Genotype (Horizontal Bar)
-        new ApexCharts(document.querySelector("#chart-genotype-survival"), {
-            ...lightOptions,
-            series: [
-                { name: 'PFS (개월)', data: [16.8, 12.4, 11.2, 16.8] },
-                { name: 'OS (개월)', data: [32.4, 24.8, 22.1, 32.4] }
-            ],
-            chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
-            plotOptions: { bar: { horizontal: true, dataLabels: { position: 'top' } } },
-            colors: ['#d946ef', '#06B6D4'], // Fuchsia, Cyan
-            xaxis: { categories: ['CYP2C19 PM', 'CYP2C19 IM', 'CYP2C19 EM', '전체'] }
-        }).render();
+    /* Swimmer Plot removed from layout for now 
+    new ApexCharts(document.querySelector("#chart-swimmer"), {
+        ...lightOptions, series: [{ data: swimmerData }],
+        chart: { type: 'rangeBar', height: 320, background: 'transparent', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: true } }
+    }).render(); 
+    */
 
-        // 2. Response (CR/PR) by Genotype (Grouped/Stacked Bar)
-        new ApexCharts(document.querySelector("#chart-genotype-response"), {
-            ...lightOptions,
-            series: [
-                { name: 'CR (%)', data: [5, 10, 15] },
-                { name: 'PR (%)', data: [35, 40, 50] }
-            ],
-            chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false }, stacked: true },
-            plotOptions: { bar: { horizontal: false, columnWidth: '50%' } },
-            colors: ['#84CC16', '#06B6D4'], // Lime, Cyan
-            xaxis: { categories: ['EM', 'IM', 'PM'] },
-            yaxis: { max: 100 }
-        }).render();
+    /* P2 Dose-Response: Curve (Efficacy vs Safety) */
+    new ApexCharts(document.querySelector("#chart-dose-response"), {
+        ...lightOptions,
+        series: [
+            { name: 'Efficacy (ORR)', type: 'line', data: [{ x: 50, y: 15 }, { x: 100, y: 28 }, { x: 150, y: 42 }, { x: 200, y: 52 }, { x: 250, y: 58 }, { x: 300, y: 62 }] },
+            { name: 'Safety (Toxicity)', type: 'line', data: [{ x: 50, y: 2 }, { x: 100, y: 12 }, { x: 150, y: 22 }, { x: 200, y: 38 }, { x: 250, y: 55 }, { x: 300, y: 72 }] }
+        ],
+        chart: { height: 320, background: 'transparent', toolbar: { show: false } }, // type will be mixed
+        stroke: { width: [3, 3], curve: 'smooth', dashArray: [0, 4] }, // Safety dotted
+        colors: ['#84CC16', '#DC2626'], // Green (Efficacy), Red (Safety)
+        xaxis: {
+            type: 'numeric', min: 50, max: 300, tickAmount: 5,
+            title: { text: 'Dose (mg)' }
+        },
+        yaxis: {
+            min: 0, max: 80,
+            title: { text: 'Rate (%)' }
+        },
+        annotations: {
+            xaxis: [
+                { x: 150, borderColor: '#06B6D4', label: { text: 'RP2D', style: { color: '#fff', background: '#06B6D4' } } }
+            ]
+        }
+    }).render();
 
-        // Init
-        switchPhase('1');
+    /* P2 Dose Profile: Grouped Bar */
+    new ApexCharts(document.querySelector("#chart-dose-profile"), {
+        ...lightOptions,
+        series: [
+            { name: 'ORR (%)', data: [25, 42, 52] },
+            { name: 'DCR (%)', data: [55, 78, 65] },
+            { name: 'DLT (%)', data: [0, 8, 18] }
+        ],
+        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
+        plotOptions: { bar: { columnWidth: '60%' } },
+        colors: ['#84CC16', '#06B6D4', '#d946ef'], // Green, Cyan, Fuchsia
+        xaxis: { categories: ['100mg', '150mg (RP2D)', '200mg'] }
+    }).render();
+
+    /* P2 Biomarker: Grouped Bar (ORR and DCR) */
+    new ApexCharts(document.querySelector("#chart-p2-biomarker-bar"), {
+        ...lightOptions,
+        series: [
+            { name: 'ORR', data: [62, 24, 42] },
+            { name: 'DCR', data: [88, 58, 78] }
+        ],
+        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
+        plotOptions: { bar: { columnWidth: '50%' } },
+        colors: ['#84CC16', '#06B6D4'], // Green for ORR, Cyan for DCR to match cards
+        xaxis: { categories: ['Biomarker+', 'Biomarker-', 'Overall'] },
+        yaxis: { max: 100 }
+    }).render();
+
+    // P3 Survival - KM Curve (Step Line)
+    new ApexCharts(document.querySelector("#chart-km"), {
+        ...lightOptions,
+        series: [
+            { name: 'Treatment (DrugTx)', data: [{ x: 0, y: 100 }, { x: 3, y: 100 }, { x: 3, y: 88 }, { x: 6, y: 88 }, { x: 6, y: 82 }, { x: 9, y: 82 }, { x: 9, y: 75 }, { x: 12, y: 75 }, { x: 12, y: 70 }, { x: 15, y: 70 }, { x: 15, y: 65 }, { x: 18, y: 65 }, { x: 18, y: 62 }, { x: 21, y: 62 }, { x: 21, y: 58 }, { x: 24, y: 58 }, { x: 24, y: 55 }, { x: 27, y: 55 }, { x: 27, y: 52 }, { x: 30, y: 52 }, { x: 30, y: 50 }, { x: 33, y: 50 }, { x: 33, y: 48 }, { x: 36, y: 48 }] },
+            { name: 'Control (SOC)', data: [{ x: 0, y: 100 }, { x: 3, y: 90 }, { x: 3, y: 75 }, { x: 6, y: 75 }, { x: 6, y: 62 }, { x: 9, y: 62 }, { x: 9, y: 52 }, { x: 12, y: 52 }, { x: 12, y: 45 }, { x: 15, y: 45 }, { x: 15, y: 38 }, { x: 18, y: 38 }, { x: 18, y: 32 }, { x: 21, y: 32 }, { x: 21, y: 28 }, { x: 24, y: 28 }, { x: 24, y: 25 }, { x: 27, y: 25 }, { x: 27, y: 22 }, { x: 30, y: 22 }, { x: 30, y: 20 }, { x: 33, y: 20 }, { x: 33, y: 18 }, { x: 36, y: 18 }] }
+        ],
+        chart: { type: 'line', height: 400, background: 'transparent', toolbar: { show: false } },
+        stroke: { curve: 'straight', width: 3, dashArray: [0, 4] }, // Step-like via straight lines + data points
+        colors: ['#A855F7', '#64748B'], // Purple vs Slate
+        xaxis: {
+            title: { text: 'Time (Months)' },
+            type: 'numeric', min: 0, max: 36, tickAmount: 12
+        },
+        yaxis: {
+            title: { text: 'Survival Probability (%)' },
+            min: 0, max: 100
+        },
+        legend: { show: false }
+    }).render();
+
+    /* P3 Subgroup: Forest Plot (Simulated with RangeBar) */
+    // Data format for rangeBar: { x: 'Category', y: [min, max] }
+    // We will misuse rangeBar to show CI, and scatter for Point Estimate is hard in mixed chart with rangeBar in Apex.
+    // Solution: Use RangeBar for CI, and try to add a scatter series? Or stick to simple RangeBar showing CI and center being the point.
+    // Let's use RangeBar and maybe "goals" or just rely on the bar representing the CI.
+    // Better yet, use a scatter chart with error bars if possible, but Apex doesn't support error bars easily.
+    // Alternative: Use RangeBar where y is [LowerCI, UpperCI]. The "point" is not explicitly shown but implied. 
+    // Image shows a dot on the line. 
+    // To mimic image: rangeBar for standard line + scatter for dot. (Apex supports RangeBar + Scatter mixed?) - No easily.
+    // Simplified: RangeBar for CI.
+
+    new ApexCharts(document.querySelector("#chart-forest"), {
+        ...lightOptions,
+        series: [
+            {
+                name: '95% CI',
+                data: [
+                    { x: '전체 인구', y: [0.55, 0.84], goals: [{ value: 0.68, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
+                    { x: '연령 <65세', y: [0.48, 0.80], goals: [{ value: 0.62, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
+                    { x: '연령 ≥65세', y: [0.58, 0.97], goals: [{ value: 0.75, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
+                    { x: '남성', y: [0.50, 0.85], goals: [{ value: 0.65, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
+                    { x: '여성', y: [0.54, 0.96], goals: [{ value: 0.72, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
+                    { x: 'Biomarker+', y: [0.40, 0.68], goals: [{ value: 0.52, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] }, // Highlighted in image
+                    { x: 'Biomarker-', y: [0.68, 1.14], goals: [{ value: 0.88, strokeWidth: 8, strokeHeight: 8, strokeColor: '#F59E0B' }] },
+                    { x: 'ECOG 0', y: [0.44, 0.76], goals: [{ value: 0.58, strokeWidth: 8, strokeHeight: 8, strokeColor: '#A855F7' }] },
+                    { x: 'ECOG 1', y: [0.62, 1.08], goals: [{ value: 0.82, strokeWidth: 8, strokeHeight: 8, strokeColor: '#F59E0B' }] }
+                ]
+            }
+        ],
+        chart: { type: 'rangeBar', height: 400, background: 'transparent', toolbar: { show: false } },
+        plotOptions: {
+            bar: {
+                horizontal: true,
+                barHeight: '10%' // Make lines thin
+            }
+        },
+        colors: ['#CBD5E1'], // Gray for the CI Line
+        xaxis: {
+            min: 0, max: 1.5, tickAmount: 3,
+            title: { text: 'Hazard Ratio (HR)' }
+        },
+        annotations: {
+            xaxis: [{ x: 1.0, borderColor: '#94a3b8', strokeDashArray: 4 }]
+        }
+    }).render();
+
+    /* P3 Precision: Genotype Charts */
+    // 1. Survival (PFS/OS) by Genotype (Horizontal Bar)
+    new ApexCharts(document.querySelector("#chart-genotype-survival"), {
+        ...lightOptions,
+        series: [
+            { name: 'PFS (개월)', data: [16.8, 12.4, 11.2, 16.8] },
+            { name: 'OS (개월)', data: [32.4, 24.8, 22.1, 32.4] }
+        ],
+        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
+        plotOptions: { bar: { horizontal: true, dataLabels: { position: 'top' } } },
+        colors: ['#d946ef', '#06B6D4'], // Fuchsia, Cyan
+        xaxis: { categories: ['CYP2C19 PM', 'CYP2C19 IM', 'CYP2C19 EM', '전체'] }
+    }).render();
+
+    // 2. Response (CR/PR) by Genotype (Grouped/Stacked Bar)
+    new ApexCharts(document.querySelector("#chart-genotype-response"), {
+        ...lightOptions,
+        series: [
+            { name: 'CR (%)', data: [5, 10, 15] },
+            { name: 'PR (%)', data: [35, 40, 50] }
+        ],
+        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false }, stacked: true },
+        plotOptions: { bar: { horizontal: false, columnWidth: '50%' } },
+        colors: ['#84CC16', '#06B6D4'], // Lime, Cyan
+        xaxis: { categories: ['EM', 'IM', 'PM'] },
+        yaxis: { max: 100 }
+    }).render();
+
+    // Init
+    switchPhase('1');
     });
 </script>
 {% endblock %}

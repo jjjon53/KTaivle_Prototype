@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}Create Virtual Cohort - PharmaTwin{% endblock %}
+{% block title %}Create Virtual Cohort - Pyxidis{% endblock %}
 
 {% block extra_css %}
 {{ super() }}
@@ -119,25 +119,6 @@
                 한미약품 FDA 타겟 임상 데이터 기반 디지털 트윈 코호트 설정.
                 유전적 다형성, 신장/간 기능, 병용 약물 등 고급 파라미터를 설정하여 정밀한 임상시험 시뮬레이션을 수행합니다.
             </p>
-        </div>
-        <div class="flex items-center gap-2">
-            <button type="button"
-                class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                Export
-            </button>
-            <button type="button"
-                class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-                    </path>
-                </svg>
-                Share
-            </button>
         </div>
     </div>
 
@@ -665,35 +646,36 @@
                                 <div>
                                     <label class="text-[10px] text-gray-500 uppercase">CL (mL/min/kg)</label>
                                     <input type="number" step="0.01" name="cl" id="inputCL"
-                                        value="{{ '%.2f'|format(prediction.result_json.pk.human_CL_mL_min_kg_linear) if prediction else '' }}"
-                                        data-auto-value="{{ '%.2f'|format(prediction.result_json.pk.human_CL_mL_min_kg_linear) if prediction else '' }}"
+                                        value="{{ '%.2f'|format(prefill_data.cl) if prefill_data.cl else '' }}"
+                                        data-auto-value="{{ '%.2f'|format(prefill_data.cl) if prefill_data.cl else '' }}"
                                         class="w-full bg-gray-50 border border-gray-200 rounded p-1.5 text-sm text-gray-500 font-mono"
                                         readonly>
                                 </div>
                                 <div>
                                     <label class="text-[10px] text-gray-500 uppercase">Vd (L/kg)</label>
                                     <input type="number" step="0.01" name="vd" id="inputVD"
-                                        value="{{ '%.2f'|format(prediction.result_json.pk.human_VDss_L_kg_linear) if prediction else '' }}"
-                                        data-auto-value="{{ '%.2f'|format(prediction.result_json.pk.human_VDss_L_kg_linear) if prediction else '' }}"
+                                        value="{{ '%.2f'|format(prefill_data.vd) if prefill_data.vd else '' }}"
+                                        data-auto-value="{{ '%.2f'|format(prefill_data.vd) if prefill_data.vd else '' }}"
                                         class="w-full bg-gray-50 border border-gray-200 rounded p-1.5 text-sm text-gray-500 font-mono"
                                         readonly>
                                 </div>
                                 <div>
                                     <label class="text-[10px] text-gray-500 uppercase">MW (g/mol)</label>
                                     <input type="number" step="0.01" name="mw" id="inputMW"
-                                        value="{{ prediction.result_json.properties.mw if prediction else '' }}"
-                                        data-auto-value="{{ prediction.result_json.properties.mw if prediction else '' }}"
+                                        value="{{ prefill_data.mw if prefill_data.mw else '' }}"
+                                        data-auto-value="{{ prefill_data.mw if prefill_data.mw else '' }}"
                                         class="w-full bg-gray-50 border border-gray-200 rounded p-1.5 text-sm text-gray-500 font-mono"
                                         readonly>
                                 </div>
                                 <div>
-                                    <label class="text-[10px] text-gray-500 uppercase">fu</label>
-                                    <input type="number" step="0.01" name="fu" id="inputFU"
-                                        value="{{ '%.2f'|format(prediction.result_json.pk.human_fup) if prediction else '0.9' }}"
-                                        data-auto-value="{{ '%.2f'|format(prediction.result_json.pk.human_fup) if prediction else '0.9' }}"
+                                    <label class="text-[10px] text-gray-500 uppercase">Dose (mg)</label>
+                                    <input type="number" step="0.1" name="dose_mg" id="inputDose"
+                                        value="100.0"
+                                        data-auto-value="100.0"
                                         class="w-full bg-gray-50 border border-gray-200 rounded p-1.5 text-sm text-gray-500 font-mono"
                                         readonly>
                                 </div>
+                                <input type="hidden" name="fu" id="inputFU" value="{{ '%.2f'|format(prefill_data.fu) if prefill_data.fu else '0.9' }}">
                                 <!-- Hidden default for ratio handled in demographics, adding hidden input for compatibility if needed or reusing the one above -->
                                 <input type="hidden" name="female_ratio" value="0.5">
                             </div>
@@ -708,8 +690,6 @@
                                 </svg>
                                 Run Visual Simulation
                             </button>
-                            <p class="text-[10px] text-center text-gray-400 mt-2">Estimation: ~1s (N=100) - ~5s (N=1000)
-                            </p>
                         </div>
                     </form>
                 </div>
@@ -743,17 +723,24 @@
 
                     <a href="/projects/{{ project.id }}/cohorts/{{ cohort.id }}"
                         class="block group p-4 rounded-xl border border-gray-100 hover:border-[#0077a2]/30 hover:shadow-md transition bg-white relative overflow-hidden">
+                        <button onclick="deleteCohort(event, {{ cohort.id }})" 
+                            class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 bg-white/80 rounded-full hover:bg-red-50 transition z-20 opacity-0 group-hover:opacity-100 shadow-sm border border-transparent hover:border-red-100"
+                            title="Delete Result">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
                         <div class="flex justify-between items-start mb-2">
                             <span class="border px-2 py-0.5 rounded text-[10px] font-bold {{ badge_color }}">Phase {{
                                 phase }}</span>
-                            <span class="text-xs text-gray-400">{{ cohort.created_at.strftime('%m-%d %H:%M') }}</span>
+                            <span class="text-xs text-gray-400">{{ cohort.created_at.strftime('%Y-%m-%d %H:%M') if cohort.created_at else '' }}</span>
                         </div>
                         <h4 class="font-bold text-gray-800 group-hover:text-[#0077a2] mb-1 truncate">{{ cohort.name }}
                         </h4>
                         <div class="flex items-center gap-2 text-xs text-gray-500">
                             <span>N={{ cohort.demographics.n }}</span>
                             <span>•</span>
-                            <span>{{ cohort.demographics.pop }}</span>
+                            <span>{{ cohort.demographics['pop'] }}</span>
                         </div>
                     </a>
                     {% endfor %}
@@ -917,7 +904,7 @@
     }
 
     function setMode(mode) {
-        const inputs = ['inputCL', 'inputVD', 'inputMW', 'inputFU'];
+        const inputs = ['inputCL', 'inputVD', 'inputMW', 'inputDose'];
         const btnAuto = document.getElementById('btnAuto');
         const btnManual = document.getElementById('btnManual');
 
@@ -1025,5 +1012,26 @@
         document.getElementById('loadingOverlay').classList.remove('hidden');
         document.getElementById('loadingOverlay').classList.add('flex');
     });
+
+    // Delete Cohort Logic
+    function deleteCohort(event, cohortId) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if(!confirm('Are you sure you want to delete this simulation result? This cannot be undone.')) return;
+        
+        fetch(`/projects/{{ project.id }}/cohorts/${cohortId}`, {
+            method: 'DELETE'
+        }).then(res => {
+            if(res.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to delete result.');
+            }
+        }).catch(e => {
+            console.error(e);
+            alert('Error deleting result.');
+        });
+    }
 </script>
 {% endblock %}

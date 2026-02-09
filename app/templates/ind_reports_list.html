@@ -1,0 +1,185 @@
+{% extends "app_base.html" %}
+
+{% block title %}All IND Reports - Pyxidis{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <a href="/dashboard" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900">All IND Reports</h1>
+        </div>
+        <button onclick="document.getElementById('newReportModal').classList.remove('hidden')"
+            class="flex items-center gap-2 px-4 py-2.5 bg-[#f97316] hover:bg-[#ea580c] text-white text-sm font-medium rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            CREATE REPORT
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {% for report in ind_reports %}
+        <div class="group block relative">
+            <!-- Dropdown Trigger -->
+            <div class="absolute top-2 right-2 z-20">
+                <button class="text-white/70 hover:text-white p-1 rounded-full hover:bg-black/40 transition opacity-0 group-hover:opacity-100"
+                    onclick="toggleProjectMenu(event, 'report-menu-{{ report.id }}')">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                </button>
+                <!-- Dropdown Menu -->
+                <div id="report-menu-{{ report.id }}"
+                    class="hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-30">
+                    <button onclick="deleteReport(event, {{ report.id }})"
+                        class="block w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition">
+                        Delete Report
+                    </button>
+                </div>
+            </div>
+
+            <a href="/dashboard/reports/{{ report.id }}" class="block">
+                <div
+                    class="w-full aspect-video bg-white border border-gray-100 rounded-lg mb-2 relative overflow-hidden flex items-center justify-center shadow-sm group-hover:shadow-md transition">
+                    {% if report.meta_data and report.meta_data.smiles %}
+                    <img src="/api/molecule/image?smiles={{ report.meta_data.smiles }}&width=300&height=180" 
+                         alt="Molecule Structure" 
+                         class="w-full h-full object-contain p-4"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="hidden w-full h-full bg-gray-900 flex-col items-center justify-center text-white/50 text-xs">
+                        <svg class="w-6 h-6 opacity-50 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                        <span>IND REPORT</span>
+                    </div>
+                    {% else %}
+                    <div class="w-full h-full bg-gray-900 flex flex-col items-center justify-center text-white/50 text-xs">
+                        <div class="border border-white/20 rounded p-3 flex flex-col items-center">
+                            <svg class="w-6 h-6 opacity-50 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                            <span>IND REPORT</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div
+                        class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white backdrop-blur-sm">
+                        {{ report.status }}
+                    </div>
+                </div>
+            <div class="px-1">
+                <h3 class="text-sm font-medium text-gray-800 group-hover:text-[#0077a2] truncate">{{ report.title }}
+                </h3>
+                <p class="text-xs text-gray-400 mt-0.5">{{ report.created_at.strftime('%b %d, %Y') if
+                    report.created_at else 'N/A' }}</p>
+                {% if report.project %}
+                <p class="text-xs text-[#0077a2] mt-0.5">{{ report.project.title }}</p>
+                {% endif %}
+            </div>
+            </a>
+        </div>
+        {% else %}
+        <div class="col-span-full py-8 text-center border-2 border-dashed border-gray-200 rounded-lg">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-gray-500 text-sm mb-2">No IND reports yet.</p>
+            <p class="text-xs text-gray-400">Generate an IND report from a project to see it here.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- New Report Modal (Required for Button) -->
+<div id="newReportModal"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4"
+    onclick="this.classList.add('hidden')">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden" onclick="event.stopPropagation()">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800">Create IND Report</h3>
+                <p class="text-sm text-gray-500">Select a project with Results to generate an IND report</p>
+            </div>
+            <button onclick="document.getElementById('newReportModal').classList.add('hidden')"
+                class="text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <!-- We need 'results' variable for this modal list. 
+                 If not passed to this template, we need to pass it or handle it. 
+                 Since 'ind_reports_list' view might NOT query 'results', this modal might be empty or break.
+                 I'll ensure the view passes 'results' (projects with cohorts) too. -->
+            <div class="space-y-3 max-h-80 overflow-y-auto">
+                {% if results %}
+                {% for result_project in results %}
+                <a href="/ind-generator?project_id={{ result_project.id }}"
+                    class="block p-4 border border-gray-200 rounded-lg hover:border-[#f97316] hover:bg-orange-50 transition group">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-medium text-gray-800 group-hover:text-[#f97316]">{{ result_project.title }}
+                            </h4>
+                            <p class="text-xs text-gray-500 mt-1">{{ result_project.cohorts|length }} Cohort(s)</p>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-[#f97316]" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-gray-500 text-sm">No projects with results available.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <button type="button" onclick="document.getElementById('newReportModal').classList.add('hidden')"
+                class="w-full px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleProjectMenu(event, menuId) {
+        event.preventDefault();
+        event.stopPropagation();
+        document.querySelectorAll('[id^="report-menu-"]').forEach(menu => {
+            if (menu.id !== menuId) menu.classList.add('hidden');
+        });
+        document.getElementById(menuId).classList.toggle('hidden');
+    }
+
+    function deleteReport(event, reportId) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!confirm('Are you sure you want to delete this report?')) return;
+        fetch(`/dashboard/reports/${reportId}`, { method: 'DELETE' })
+            .then(res => {
+                if (res.ok) window.location.reload();
+                else alert('Failed to delete report.');
+            })
+            .catch(err => alert('Error deleting report.'));
+    }
+
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.relative')) {
+            document.querySelectorAll('[id^="report-menu-"]').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+        }
+    });
+</script>
+{% endblock %}

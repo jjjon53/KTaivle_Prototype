@@ -5,7 +5,7 @@
 ## 1. 🎨 디자인 시스템 (Design System)
 
 ### **Color Palette**
-우리는 **Certara/PharmaTwin** 테마를 따릅니다.
+우리는 **Certara/Pyxidis** 테마를 따릅니다.
 - **Primary Blue**: `#0077a2` (링크, 버튼, 강조 텍스트)
 - **Primary Dark**: `#005a7a` (버튼 Hover)
 - **Background**: `#F3F4F6` (bg-gray-100)

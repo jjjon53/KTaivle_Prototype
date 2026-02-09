@@ -1,0 +1,74 @@
+{% extends "app_base.html" %}
+
+{% block title %}All Results - Pyxidis{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+    .project-card {
+        border-left: 5px solid #00487E !important;
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <a href="/dashboard" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900">Simulation Results</h1>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {% for result_project in results %}
+        <!-- Linking to the new Grouped Result Page -->
+        <a href="/projects/{{ result_project.id }}/results"
+            class="project-card block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition group">
+            <div class="flex items-start justify-between mb-3">
+                <h3 class="text-sm font-semibold text-[#00487E] group-hover:underline line-clamp-2">{{ result_project.title }}</h3>
+            </div>
+            <p class="text-xs text-gray-800 font-medium mb-1 line-clamp-1">Clinical Trial Design</p>
+            <div class="space-y-0.5 mt-2">
+                {% set ns = namespace(p1=0, p2=0, p3=0) %}
+                {% for c in result_project.cohorts %}
+                {# Convert to string strictly to catch '1' vs 1 #}
+                {% set ph = c.demographics.get('phase', '1')|string %}
+                {% if ph == '1' %}
+                {% set ns.p1 = ns.p1 + 1 %}
+                {% elif ph == '2' %}
+                {% set ns.p2 = ns.p2 + 1 %}
+                {% elif ph == '3' %}
+                {% set ns.p3 = ns.p3 + 1 %}
+                {% else %}
+                {% set ns.p1 = ns.p1 + 1 %}
+                {% endif %}
+                {% endfor %}
+
+                <p class="text-[10px] text-gray-500 flex justify-between">
+                    <span>Phase 1:</span> <span class="font-medium text-gray-700">{{ ns.p1 }}</span>
+                </p>
+                <p class="text-[10px] text-gray-500 flex justify-between">
+                    <span>Phase 2:</span> <span class="font-medium text-gray-700">{{ ns.p2 }}</span>
+                </p>
+                <p class="text-[10px] text-gray-500 flex justify-between">
+                    <span>Phase 3:</span> <span class="font-medium text-gray-700">{{ ns.p3 }}</span>
+                </p>
+            </div>
+            <p class="text-xs text-blue-500 mt-2 text-right font-medium">View Analysis &rarr;</p>
+        </a>
+        {% else %}
+        <div class="col-span-full py-8 text-center border-2 border-dashed border-gray-200 rounded-lg">
+            <p class="text-gray-500 text-sm mb-2">No optimization results yet.</p>
+            <p class="text-xs text-gray-400">Run a simulation in a project to see results here.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

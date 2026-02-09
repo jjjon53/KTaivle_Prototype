@@ -1,6 +1,6 @@
 # 🏥 PKSmart: AI-Powered Clinical Trial Design Platform
 
-PharmaTwin의 AI 기반 임상시험 설계 및 독성 예측 플랫폼입니다.
+Pyxidis의 AI 기반 임상시험 설계 및 독성 예측 플랫폼입니다.
 
 ---
 
@@ -64,25 +64,38 @@ PKSmart/
 
 ---
 
-## 🚀 How to Run
+## 🚀 웹 대시보드 실행 방법
 
+### 📂 실행 경로
+```
+ClinicalTrials-main/PKSmart/
+```
+
+### 💻 실행 명령어
 ```bash
-# 1. 가상환경 생성 및 활성화
+# 1. PKSmart 디렉토리로 이동
+cd ClinicalTrials-main/PKSmart
+
+# 2. 가상환경 생성 및 활성화
 python -m venv .venv
 .\.venv\Scripts\activate  # Windows
 source .venv/bin/activate  # Linux/Mac
 
-# 2. 의존성 설치
+# 3. 의존성 설치
 pip install -r requirements.txt
 
-# 3. 서버 실행
-python run_app.py
-# 또는
+# 4. 서버 실행
 uvicorn app.main:app --reload --port 8000
 
-# 4. 브라우저 접속
-# http://127.0.0.1:8000
+# 5. 브라우저에서 접속
+# http://localhost:8000
 ```
+
+### 🔐 로그인 정보
+| ID | Password |
+|----|----------|
+| `admin` | `password123` |
+| `testuser` | `password123` |
 
 ---
 

@@ -1,6 +1,6 @@
 {% extends "app_base.html" %}
 
-{% block title %}{{ project.title }} - PharmaTwin{% endblock %}
+{% block title %}{{ project.title }} - Pyxidis{% endblock %}
 
 {% block extra_css %}
 {{ super() }}
@@ -81,7 +81,10 @@
         padding: 8px 12px;
         border-radius: 8px;
         font-size: 12px;
-        white-space: nowrap;
+        white-space: normal;
+        min-width: 200px;
+        max-width: 280px;
+        text-align: center;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         transition: all 0.2s;
     }
@@ -172,7 +175,7 @@
     <!-- Predictions Section -->
     <div class="space-y-8">
         {% for pred in project.predictions|reverse %}
-        <div class="content-card overflow-hidden">
+        <div class="content-card">
 
             <!-- Card Header -->
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -378,7 +381,7 @@
                                     class="info-tooltip-icon">i</span><span class="info-tooltip-text">종간 PK 파라미터: 4가지
                                     종의 주요 약동학 변수 비교</span></span>
                         </h3>
-                        <div class="overflow-x-auto">
+                        <div>
                             <table class="w-full text-sm text-left">
                                 <thead class="bg-gray-50 text-gray-600 font-medium border-b">
                                     <tr>
@@ -553,15 +556,7 @@
 
                 <!-- Action Bar -->
                 <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end gap-3">
-                    <!-- Report Button -->
-                    <button type="button"
-                        class="px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-lg text-sm font-medium transition flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Generate Report
-                    </button>
+                    <!-- Generate Report Button Removed -->
 
                     <!-- Next Step Button (Virtual Cohort) -->
                     <a href="/projects/{{ project.id }}/cohorts/new?pred_id={{ pred.id }}"
