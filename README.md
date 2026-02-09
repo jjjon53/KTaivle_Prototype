@@ -91,11 +91,6 @@ uvicorn app.main:app --reload --port 8000
 # http://localhost:8000
 ```
 
-### 🔐 로그인 정보
-| ID | Password |
-|----|----------|
-| `admin` | `password123` |
-| `testuser` | `password123` |
 
 ---
 
