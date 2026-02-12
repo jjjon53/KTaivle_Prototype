@@ -70,61 +70,94 @@
         margin-bottom: 6px;
     }
 
-    /* Help Icon */
-    .help-icon {
-        width: 14px;
-        height: 14px;
-        color: #9ca3af;
-        cursor: help;
-    }
-
-    /* Custom Tooltip */
-    .tooltip-trigger {
+    /* Info Tooltip (Renamed to avoid conflict with Sidebar tooltips) */
+    .info-tooltip-container {
         position: relative;
         display: inline-flex;
         align-items: center;
-        margin-left: 4px;
     }
 
-    .tooltip-content {
+    .info-tooltip-icon {
+        width: 14px;
+        height: 14px;
+        background: #0077a2;
+        color: white;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+        cursor: help;
+        margin-left: 4px;
+        transition: all 0.2s;
+    }
+
+    .info-tooltip-icon:hover {
+        background: #005a7a;
+        transform: scale(1.1);
+    }
+
+    .info-tooltip-text {
         visibility: hidden;
-        width: 220px;
-        background-color: #1f2937;
-        color: #f9fafb;
-        text-align: left;
-        border-radius: 6px;
-        padding: 8px 12px;
+        opacity: 0;
         position: absolute;
-        z-index: 50;
-        top: 135%;
-        bottom: auto;
+        z-index: 100;
+        bottom: 125%;
         left: 50%;
         transform: translateX(-50%);
-        opacity: 0;
-        transition: opacity 0.2s;
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 8px 12px;
+        border-radius: 8px;
         font-size: 12px;
-        font-weight: 400;
-        line-height: 1.4;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        pointer-events: none;
-        white-space: normal; /* Ensure text wraps */
+        white-space: normal;
+        min-width: 200px;
+        max-width: 280px;
+        text-align: center;
+        width: max-content;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s;
     }
 
-    .tooltip-trigger:hover .tooltip-content {
+    .info-tooltip-text::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #1e293b;
+    }
+
+    .info-tooltip-container:hover .info-tooltip-text {
         visibility: visible;
         opacity: 1;
     }
 
-    .tooltip-content::after {
-        content: "";
-        position: absolute;
-        bottom: 100%;
+    /* Tooltip positioned below the icon (for top items to avoid clipping) */
+    .info-tooltip-text.bottom {
+        bottom: auto;
+        top: 135%;
+    }
+
+    .info-tooltip-text.bottom::after {
         top: auto;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: transparent transparent #1f2937 transparent;
+        bottom: 100%;
+        border-top-color: transparent;
+        border-bottom-color: #1e293b;
+    }
+
+    /* Tooltip aligned to start (for left-edge items to avoid left clipping) */
+    .info-tooltip-text.safe-left {
+        left: -10px;
+        transform: none;
+    }
+
+    .info-tooltip-text.safe-left::after {
+        left: 17px;
+        /* Center of icon (14px/2 + 10px offset = 17px) */
+        transform: translateX(-50%);
     }
 
     /* Preview Panel */
@@ -141,15 +174,7 @@
         overflow-y: auto;
     }
 
-    /* Loading Spinner */
-    .spinner {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #f97316;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        animation: spin 1s linear infinite;
-    }
+
 
     @keyframes spin {
         0% {
@@ -171,7 +196,7 @@
             Pharmacology/Toxicology
         </p>
 
-        <div class="flex justify-end mb-4">
+        <!-- <div class="flex justify-end mb-4">
             <button onclick="exportFDA1571()"
                 class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-700 flex items-center gap-2 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -181,7 +206,7 @@
                 </svg>
                 Export as FDA 1571 (PDF)
             </button>
-        </div>
+        </div> -->
         <script>
             function exportFDA1571() {
                 const params = new URLSearchParams();
@@ -226,9 +251,10 @@
                             <div>
                                 <label class="form-label">
                                     Applicant Name
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">IND 신청서에 기재될 의뢰자(Applicant)의 공식 명칭입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text bottom safe-left">IND 신청서에 기재될 의뢰자(Applicant)의 공식
+                                            명칭입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="applicant_name" class="form-input" placeholder=""
@@ -237,9 +263,10 @@
                             <div>
                                 <label class="form-label">
                                     Applicant Address
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">의뢰자의 공식 주소입니다. FDA와의 서신 교환에 사용됩니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">의뢰자의 공식 주소입니다. FDA와의 서신 교환에
+                                            사용됩니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="applicant_address" class="form-input" placeholder=""
@@ -248,9 +275,9 @@
                             <div>
                                 <label class="form-label">
                                     Phone Number
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">의뢰자 또는 대리인의 연락처입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">의뢰자 또는 대리인의 연락처입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="applicant_phone" class="form-input" placeholder=""
@@ -284,9 +311,10 @@
                             <div>
                                 <label class="form-label">
                                     Principal Investigator Name
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">임상시험을 총괄할 연구 책임자(PI)의 성명입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text bottom safe-left">임상시험을 총괄할 연구 책임자(PI)의
+                                            성명입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="pi_name" class="form-input" placeholder=""
@@ -295,9 +323,10 @@
                             <div>
                                 <label class="form-label">
                                     PI Credentials
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">연구 책임자의 자격 및 학위 정보 (예: MD, PhD)입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">연구 책임자의 자격 및 학위 정보 (예: MD,
+                                            PhD)입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="pi_credentials" class="form-input" placeholder=""
@@ -306,9 +335,9 @@
                             <div>
                                 <label class="form-label">
                                     Research Institution
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">임상시험이 수행될 연구 기관 또는 병원의 명칭입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">임상시험이 수행될 연구 기관 또는 병원의 명칭입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="institution_name" class="form-input" placeholder=""
@@ -317,9 +346,9 @@
                             <div>
                                 <label class="form-label">
                                     Institution Address
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">연구 기관의 주소입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">연구 기관의 주소입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="institution_address" class="form-input" placeholder=""
@@ -328,9 +357,10 @@
                             <div>
                                 <label class="form-label">
                                     IRB/Ethics Committee Name
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">임상시험 계획을 심의할 임상시험심사위원회(IRB)의 명칭입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">임상시험 계획을 심의할 임상시험심사위원회(IRB)의
+                                            명칭입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="irb_name" class="form-input" placeholder=""
@@ -364,9 +394,11 @@
                                 <div>
                                     <label class="form-label">
                                         Clinical Phase
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">진행하고자 하는 임상시험의 단계입니다 (1상, 2상, 3상).</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text bottom safe-left">진행하고자 하는 임상시험의 단계입니다 (1상,
+                                                2상,
+                                                3상).</span>
                                         </span>
                                     </label>
                                     <select id="clinical_phase" class="form-input"
@@ -385,9 +417,9 @@
                                 <div>
                                     <label class="form-label">
                                         Expected Patients
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">임상시험에 모집할 예상 피험자 수입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text">임상시험에 모집할 예상 피험자 수입니다.</span>
                                         </span>
                                     </label>
                                     <input type="number" id="expected_patients" class="form-input" placeholder="30"
@@ -397,9 +429,9 @@
                             <div>
                                 <label class="form-label">
                                     Study Duration
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">임상시험의 전체 예상 기간입니다 (예: 12주, 6개월).</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text">임상시험의 전체 예상 기간입니다 (예: 12주, 6개월).</span>
                                     </span>
                                 </label>
                                 <input type="text" id="study_duration" class="form-input" placeholder="12 weeks"
@@ -408,9 +440,10 @@
                             <div>
                                 <label class="form-label">
                                     Target Population
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">해당 Phase 시뮬레이션에서 적용된 인구 집단 정보(인종, 성별, 연령)가 자동으로 매핑됩니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text">해당 Phase 시뮬레이션에서 적용된 인구 집단 정보(인종, 성별, 연령)가 자동으로
+                                            매핑됩니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="target_population" class="form-input"
@@ -445,9 +478,9 @@
                                 <label class="form-label">
                                     Drug Name
                                     <span class="text-red-500">*</span>
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">임상시험용 의약품의 명칭 또는 코드명입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text bottom safe-left">임상시험용 의약품의 명칭 또는 코드명입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="drug_name" class="form-input" placeholder="Draft Drug A"
@@ -456,9 +489,11 @@
                             <div>
                                 <label class="form-label">
                                     Drug Class
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">약물의 작용 기전이나 구조적 특성에 따른 분류입니다 (예: Small Molecule, Biologics).</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">약물의 작용 기전이나 구조적 특성에 따른 분류입니다 (예: Small
+                                            Molecule,
+                                            Biologics).</span>
                                     </span>
                                 </label>
                                 <select id="drug_class" class="form-input">
@@ -476,9 +511,11 @@
                                 <label class="form-label">
                                     SMILES / Sequence
                                     <span class="text-red-500">*</span>
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">약물의 분자 구조를 나타내는 문자열 표기법입니다 (소분자: SMILES, 생물학적 제제: 서열).</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text">약물의 분자 구조를 나타내는 문자열 표기법입니다 (소분자: SMILES, 생물학적
+                                            제제:
+                                            서열).</span>
                                     </span>
                                 </label>
                                 <input type="text" id="smiles" class="form-input font-mono text-sm"
@@ -489,9 +526,9 @@
                                 <label class="form-label">
                                     Indication
                                     <span class="text-red-500">*</span>
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">약물이 목표로 하는 적응증(질환)입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">약물이 목표로 하는 적응증(질환)입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="indication" class="form-input" placeholder="Oncology"
@@ -500,9 +537,10 @@
                             <div>
                                 <label class="form-label">
                                     Mechanism of Action
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">약물이 생체 내에서 효과를 나타내는 구체적인 작용 기전입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">약물이 생체 내에서 효과를 나타내는 구체적인 작용
+                                            기전입니다.</span>
                                     </span>
                                 </label>
                                 <input type="text" id="mechanism" class="form-input"
@@ -513,9 +551,9 @@
                                     <label class="form-label">
                                         Dose (mg)
                                         <span class="text-red-500">*</span>
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">임상시험에서 투여될 약물의 용량입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text safe-left">임상시험에서 투여될 약물의 용량입니다.</span>
                                         </span>
                                     </label>
                                     <input type="number" id="dose_mg" class="form-input" placeholder="100"
@@ -524,9 +562,10 @@
                                 <div>
                                     <label class="form-label">
                                         Regimen
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">약물의 투여 주기 및 방법입니다 (예: QD-1일 1회, BID-1일 2회).</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text">약물의 투여 주기 및 방법입니다 (예: QD-1일 1회, BID-1일
+                                                2회).</span>
                                         </span>
                                     </label>
                                     <select id="dosing_regimen" class="form-input">
@@ -571,9 +610,10 @@
                                     <label class="form-label">
                                         Cmax (µg/mL)
                                         <span class="text-red-500">*</span>
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">약물 투여 후 도달하는 최고 혈중 농도 예측치입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text bottom safe-left">약물 투여 후 도달하는 최고 혈중 농도
+                                                예측치입니다.</span>
                                         </span>
                                     </label>
                                     <input type="number" step="0.01" id="cmax" class="form-input" placeholder="1500.5"
@@ -583,9 +623,10 @@
                                     <label class="form-label">
                                         AUC (µg·h/mL)
                                         <span class="text-red-500">*</span>
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">혈중 약물 농도-시간 곡선 아래의 면적으로, 전신 노출도를 의미합니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text bottom">혈중 약물 농도-시간 곡선 아래의 면적으로, 전신 노출도를
+                                                의미합니다.</span>
                                         </span>
                                     </label>
                                     <input type="number" step="0.01" id="auc" class="form-input" placeholder="25000"
@@ -597,9 +638,10 @@
                                     <label class="form-label">
                                         t½ (hours)
                                         <span class="text-red-500">*</span>
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">약물의 혈중 농도가 절반으로 줄어드는 데 걸리는 시간입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text safe-left">약물의 혈중 농도가 절반으로 줄어드는 데 걸리는
+                                                시간입니다.</span>
                                         </span>
                                     </label>
                                     <input type="number" step="0.1" id="t_half" class="form-input" placeholder="12.5"
@@ -608,9 +650,9 @@
                                 <div>
                                     <label class="form-label">
                                         Vss (L/kg)
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">정상 상태에서의 약물 분포 용적입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text">정상 상태에서의 약물 분포 용적입니다.</span>
                                         </span>
                                     </label>
                                     <input type="number" step="0.01" id="vss" class="form-input" placeholder="0.5"
@@ -622,9 +664,10 @@
                                     <label class="form-label">
                                         hERG Margin (x-fold)
                                         <span class="text-red-500">*</span>
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">심장 독성(hERG 채널 억제) 발생 가능성에 대한 안전역입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text safe-left">심장 독성(hERG 채널 억제) 발생 가능성에 대한
+                                                안전역입니다.</span>
                                         </span>
                                     </label>
                                     <input type="number" step="0.1" id="herg_margin" class="form-input" placeholder="30"
@@ -633,9 +676,9 @@
                                 <div>
                                     <label class="form-label">
                                         Hepatotoxicity Risk
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">간 독성 발생 위험도 예측 결과입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text">간 독성 발생 위험도 예측 결과입니다.</span>
                                         </span>
                                     </label>
                                     <select id="hepato_risk" class="form-input">
@@ -652,9 +695,10 @@
                             <div>
                                 <label class="form-label">
                                     QSAR Results Summary
-                                    <span class="tooltip-trigger">
-                                        <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span class="tooltip-content">구조-활성 관계(QSAR) 모델을 통한 독성 예측 결과 요약입니다.</span>
+                                    <span class="info-tooltip-container">
+                                        <span class="info-tooltip-icon">i</span>
+                                        <span class="info-tooltip-text safe-left">구조-활성 관계(QSAR) 모델을 통한 독성 예측 결과
+                                            요약입니다.</span>
                                     </span>
                                 </label>
                                 <textarea id="qsar_results_formatted" class="form-input" rows="2"
@@ -665,9 +709,10 @@
                                     <label class="form-label">
                                         Overall Safety Score (0-100)
                                         <span class="text-red-500">*</span>
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">AI 모델이 예측한 종합적인 약물 안전성 점수입니다 (0-100점).</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text safe-left">AI 모델이 예측한 종합적인 약물 안전성 점수입니다
+                                                (0-100점).</span>
                                         </span>
                                     </label>
                                     <input type="number" id="overall_score" class="form-input" placeholder="75"
@@ -676,9 +721,9 @@
                                 <div>
                                     <label class="form-label">
                                         Risk Category
-                                        <span class="tooltip-trigger">
-                                            <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="tooltip-content">종합 점수에 따른 안전성 위험 등급입니다.</span>
+                                        <span class="info-tooltip-container">
+                                            <span class="info-tooltip-icon">i</span>
+                                            <span class="info-tooltip-text">종합 점수에 따른 안전성 위험 등급입니다.</span>
                                         </span>
                                     </label>
                                     <select id="risk_category" class="form-input">
@@ -695,10 +740,10 @@
                     </div>
                 </div>
 
-                <!-- Generate Button -->
+                <!-- Generate Button (Blue Style, Centered, Document Icon) -->
                 <button id="generateBtn" onclick="generateIND()"
-                    class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-full py-4 bg-[#0077a2] hover:bg-[#005a7a] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2 group">
+                    <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -762,9 +807,15 @@
                 <!-- Loading State -->
                 <div id="loadingState" class="hidden">
                     <div class="flex flex-col items-center justify-center py-12">
-                        <div class="spinner mb-4"></div>
+                        <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1548 1522"
+                            class="w-16 h-16 mb-4 animate-spin" style="animation-duration: 1s;">
+                            <path fill="#212b3b"
+                                d="m1433.9 795.5c0-9.5 0-19 0-29.2h-245.7q1.3 14.9 1.3 28.6c0 251.2-199.4 454.1-444.5 454.1-245.7 0-484.6-213.8-498.2-482.7h-124.6c0-9.6-0.7-19.1-0.7-28.6 0-274.4 157.3-512.7 385.3-627l-46.3-110.3c-83 39.4-159.3 94.6-226 162-151.1 154.5-234.1 359.5-234.1 576.6 0 217.9 76.9 390.1 216.4 532.4 140.9 143.7 328.8 222.6 528.2 222.6 379.9 0 688.9-313.8 688.9-698.5z" />
+                            <path fill="#212b3b"
+                                d="m1333.2 267.9c-139.6-142.3-324.7-220.6-522.1-220.6-369 0-670.5 299.6-680.7 671.3q0 1.4 0 3.4 0 8.2 0 16.4 0 10.2 0 20.4h228q0-10.2 0-20.4c0-254.7 202.9-462.3 452.7-462.3 249.8 0 488.7 213.1 507.1 482.7h123.2v7.5c1.4 11.5 1.4 20.4 1.4 29.2 0 275.1-155.2 513.4-381.9 630.5l40.2 96c78.9-39.5 151.1-92 214.4-155.9 149.7-153.2 232.1-356.1 232.1-571.2 0-198.8-76.2-386.1-214.4-527z" />
+                        </svg>
                         <p class="text-gray-600 font-medium">Generating IND Application...</p>
-                        <p class="text-gray-400 text-sm mt-2">This may take 30-60 seconds</p>
+                        <p class="text-gray-400 text-sm mt-2">This may take 5-10 seconds</p>
                     </div>
                 </div>
 
@@ -786,7 +837,7 @@
 
                     <div class="flex items-center justify-between mb-4">
                         <h4 class="font-semibold text-gray-800">Generated Content Preview:</h4>
-                        <button id="downloadBtn"
+                        <!-- <button id="downloadBtn"
                             onclick="document.getElementById('fdaPreviewFrame').contentWindow.print()"
                             class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition flex items-center gap-2 text-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -794,7 +845,7 @@
                                     d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
                             Print / Save as PDF
-                        </button>
+                        </button> -->
                     </div>
 
                     <div class="border border-gray-200 rounded-lg overflow-hidden h-[600px]">
@@ -873,10 +924,10 @@
             content.style.overflow = 'hidden'; // Ensure hidden during transition
             content.classList.add('open');
             header.classList.remove('collapsed');
-            
+
             // Allow overflow after transition for tooltips
             setTimeout(() => {
-                if(content.classList.contains('open')) {
+                if (content.classList.contains('open')) {
                     content.style.overflow = 'visible';
                 }
             }, 300);
@@ -915,39 +966,69 @@
         document.getElementById('generateBtn').disabled = true;
 
         try {
-            // Construct URL parameters for FDA 1571 export
+            // Build JSON body for save-report API
+            const reportData = {
+                project_id: parseInt('{{ project_id }}') || null,
+                applicant_name: document.getElementById('applicant_name')?.value || '',
+                applicant_address: document.getElementById('applicant_address')?.value || '',
+                applicant_phone: document.getElementById('applicant_phone')?.value || '',
+                pi_name: document.getElementById('pi_name')?.value || '',
+                pi_credentials: document.getElementById('pi_credentials')?.value || '',
+                drug_name: document.getElementById('drug_name')?.value || '',
+                smiles: document.getElementById('smiles')?.value || '',
+                indication: document.getElementById('target_population')?.value || '',
+                mechanism: document.getElementById('mechanism')?.value || '',
+                drug_class: document.getElementById('drug_class')?.value || 'Small Molecule',
+                clinical_phase: document.getElementById('clinical_phase')?.value || '1',
+                expected_patients: document.getElementById('expected_patients')?.value || '30',
+                study_duration: document.getElementById('study_duration')?.value || '12 weeks',
+                target_population: document.getElementById('target_population')?.value || '',
+                dose_mg: parseFloat(document.getElementById('dose_mg')?.value) || 0,
+                cmax: parseFloat(document.getElementById('cmax')?.value) || 0,
+                auc: parseFloat(document.getElementById('auc')?.value) || 0,
+                t_half: parseFloat(document.getElementById('t_half')?.value) || 0,
+                vss: parseFloat(document.getElementById('vss')?.value) || 0,
+                herg_margin: parseFloat(document.getElementById('herg_margin')?.value) || 0,
+                hepato_risk: document.getElementById('hepato_risk')?.value || 'Low',
+                qsar_results_formatted: document.getElementById('qsar_results_formatted')?.value || '',
+                risk_category: document.getElementById('risk_category')?.value || '',
+                overall_score: parseFloat(document.getElementById('overall_score')?.value) || 0,
+                dosing_regimen: document.getElementById('dosing_regimen')?.value || 'QD',
+            };
+
+            // Save report to DB
+            const saveResponse = await fetch('/api/ind/save-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reportData),
+            });
+
+            if (!saveResponse.ok) {
+                const errData = await saveResponse.json().catch(() => ({}));
+                throw new Error(errData.detail || 'Failed to save report');
+            }
+
+            // Construct URL parameters for FDA 1571 export (iframe preview)
             const params = new URLSearchParams();
             params.set('project_id', '{{ project_id }}');
-
-            // Applicant Info
-            params.set('applicant_name', document.getElementById('applicant_name')?.value || '');
-            params.set('applicant_address', document.getElementById('applicant_address')?.value || '');
-            params.set('applicant_phone', document.getElementById('applicant_phone')?.value || '');
-
-            // Drug Info
-            params.set('drug_name', document.getElementById('drug_name')?.value || '');
-            params.set('smiles', document.getElementById('smiles')?.value || '');
-
-            params.set('pi_name', document.getElementById('pi_name')?.value || '');
-            params.set('pi_credentials', document.getElementById('pi_credentials')?.value || '');
-
-            // PK/Tox Overrides
-            // We set these to allow client-side edits to be reflected in the report
-            params.set('indication', document.getElementById('target_population')?.value || '');
-            params.set('clinical_phase', document.getElementById('clinical_phase')?.value || ''); // This is an ID check? No, value.
-            params.set('dose_mg', document.getElementById('dose_mg')?.value || '');
-            params.set('cmax', document.getElementById('cmax')?.value || '');
-            params.set('auc', document.getElementById('auc')?.value || '');
-            params.set('t_half', document.getElementById('t_half')?.value || '');
-            params.set('vss', document.getElementById('vss')?.value || '');
-            params.set('herg_margin', document.getElementById('herg_margin')?.value || '');
-            // hepato_risk, qsar_results_formatted, risk_category
-            params.set('hepato_risk', document.getElementById('hepato_risk')?.value || '');
-            params.set('qsar_results', document.getElementById('qsar_results_formatted')?.value || '');
-            params.set('risk_category', document.getElementById('risk_category')?.value || '');
-
-            // Simulate loading delay for better UX
-            await new Promise(r => setTimeout(r, 1000));
+            params.set('applicant_name', reportData.applicant_name);
+            params.set('applicant_address', reportData.applicant_address);
+            params.set('applicant_phone', reportData.applicant_phone);
+            params.set('drug_name', reportData.drug_name);
+            params.set('smiles', reportData.smiles);
+            params.set('pi_name', reportData.pi_name);
+            params.set('pi_credentials', reportData.pi_credentials);
+            params.set('indication', reportData.indication);
+            params.set('clinical_phase', reportData.clinical_phase);
+            params.set('dose_mg', reportData.dose_mg);
+            params.set('cmax', reportData.cmax);
+            params.set('auc', reportData.auc);
+            params.set('t_half', reportData.t_half);
+            params.set('vss', reportData.vss);
+            params.set('herg_margin', reportData.herg_margin);
+            params.set('hepato_risk', reportData.hepato_risk);
+            params.set('qsar_results', reportData.qsar_results_formatted);
+            params.set('risk_category', reportData.risk_category);
 
             // Set iframe src
             const iframe = document.getElementById('fdaPreviewFrame');
@@ -976,7 +1057,7 @@
         if (initialPhase) {
             updatePhaseData(initialPhase);
         }
-        
+
         // Ensure open sections allow overflow for tooltips
         document.querySelectorAll('.collapsible-content.open').forEach(el => {
             el.style.overflow = 'visible';

@@ -540,6 +540,33 @@ async def generate_ind(request: INDRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/api/ind/save-report")
+async def save_ind_report(request: INDRequest, db: Session = Depends(get_db)):
+    """Save IND report metadata to DB without LLM generation.
+    Used by the IND Generator page to register reports in the dashboard."""
+    data = request.model_dump()
+
+    if not data.get("application_date"):
+        data["application_date"] = date.today().strftime("%Y-%m-%d")
+
+    drug_name = data.get("drug_name", "Untitled")
+
+    try:
+        new_report = models.INDReport(
+            project_id=data.get("project_id"),
+            title=f"IND Application: {drug_name}",
+            file_path="",
+            status="Completed",
+            meta_data=data,
+        )
+        db.add(new_report)
+        db.commit()
+        db.refresh(new_report)
+
+        return {"report_id": new_report.id, "title": new_report.title}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/api/ind/download/{filename}")
 async def download_ind(filename: str):
     """Download a generated IND document."""

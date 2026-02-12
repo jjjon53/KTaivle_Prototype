@@ -669,13 +669,13 @@
                                 </div>
                                 <div>
                                     <label class="text-[10px] text-gray-500 uppercase">Dose (mg)</label>
-                                    <input type="number" step="0.1" name="dose_mg" id="inputDose"
-                                        value="100.0"
+                                    <input type="number" step="0.1" name="dose_mg" id="inputDose" value="100.0"
                                         data-auto-value="100.0"
                                         class="w-full bg-gray-50 border border-gray-200 rounded p-1.5 text-sm text-gray-500 font-mono"
                                         readonly>
                                 </div>
-                                <input type="hidden" name="fu" id="inputFU" value="{{ '%.2f'|format(prefill_data.fu) if prefill_data.fu else '0.9' }}">
+                                <input type="hidden" name="fu" id="inputFU"
+                                    value="{{ '%.2f'|format(prefill_data.fu) if prefill_data.fu else '0.9' }}">
                                 <!-- Hidden default for ratio handled in demographics, adding hidden input for compatibility if needed or reusing the one above -->
                                 <input type="hidden" name="female_ratio" value="0.5">
                             </div>
@@ -723,17 +723,19 @@
 
                     <a href="/projects/{{ project.id }}/cohorts/{{ cohort.id }}"
                         class="block group p-4 rounded-xl border border-gray-100 hover:border-[#0077a2]/30 hover:shadow-md transition bg-white relative overflow-hidden">
-                        <button onclick="deleteCohort(event, {{ cohort.id }})" 
+                        <button onclick="deleteCohort(event, {{ cohort.id }})"
                             class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 bg-white/80 rounded-full hover:bg-red-50 transition z-20 opacity-0 group-hover:opacity-100 shadow-sm border border-transparent hover:border-red-100"
                             title="Delete Result">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </button>
                         <div class="flex justify-between items-start mb-2">
                             <span class="border px-2 py-0.5 rounded text-[10px] font-bold {{ badge_color }}">Phase {{
                                 phase }}</span>
-                            <span class="text-xs text-gray-400">{{ cohort.created_at.strftime('%Y-%m-%d %H:%M') if cohort.created_at else '' }}</span>
+                            <span class="text-xs text-gray-400">{{ cohort.created_at.strftime('%Y-%m-%d %H:%M') if
+                                cohort.created_at else '' }}</span>
                         </div>
                         <h4 class="font-bold text-gray-800 group-hover:text-[#0077a2] mb-1 truncate">{{ cohort.name }}
                         </h4>
@@ -826,7 +828,13 @@
 <!-- Loading Overlay (Reused from previous) -->
 <div id="loadingOverlay"
     class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 hidden flex-col items-center justify-center">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#0077a2] mb-4"></div>
+    <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1548 1522" class="w-16 h-16 mb-4 animate-spin"
+        style="animation-duration: 1s;">
+        <path fill="#212b3b"
+            d="m1433.9 795.5c0-9.5 0-19 0-29.2h-245.7q1.3 14.9 1.3 28.6c0 251.2-199.4 454.1-444.5 454.1-245.7 0-484.6-213.8-498.2-482.7h-124.6c0-9.6-0.7-19.1-0.7-28.6 0-274.4 157.3-512.7 385.3-627l-46.3-110.3c-83 39.4-159.3 94.6-226 162-151.1 154.5-234.1 359.5-234.1 576.6 0 217.9 76.9 390.1 216.4 532.4 140.9 143.7 328.8 222.6 528.2 222.6 379.9 0 688.9-313.8 688.9-698.5z" />
+        <path fill="#212b3b"
+            d="m1333.2 267.9c-139.6-142.3-324.7-220.6-522.1-220.6-369 0-670.5 299.6-680.7 671.3q0 1.4 0 3.4 0 8.2 0 16.4 0 10.2 0 20.4h228q0-10.2 0-20.4c0-254.7 202.9-462.3 452.7-462.3 249.8 0 488.7 213.1 507.1 482.7h123.2v7.5c1.4 11.5 1.4 20.4 1.4 29.2 0 275.1-155.2 513.4-381.9 630.5l40.2 96c78.9-39.5 151.1-92 214.4-155.9 149.7-153.2 232.1-356.1 232.1-571.2 0-198.8-76.2-386.1-214.4-527z" />
+    </svg>
     <h2 class="text-xl font-bold text-gray-800">Generating Virtual Cohort</h2>
     <p class="text-sm text-gray-500 mt-2">Running Monte Carlo Simulations...</p>
 </div>
@@ -1017,13 +1025,13 @@
     function deleteCohort(event, cohortId) {
         event.preventDefault();
         event.stopPropagation();
-        
-        if(!confirm('Are you sure you want to delete this simulation result? This cannot be undone.')) return;
-        
+
+        if (!confirm('Are you sure you want to delete this simulation result? This cannot be undone.')) return;
+
         fetch(`/projects/{{ project.id }}/cohorts/${cohortId}`, {
             method: 'DELETE'
         }).then(res => {
-            if(res.ok) {
+            if (res.ok) {
                 window.location.reload();
             } else {
                 alert('Failed to delete result.');
